@@ -42,7 +42,7 @@ jobs:
         run: |
           hugo \
             --minify \
-            --baseURL "${{ steps.pages.outputs.base_url }}/"
+            --baseURL "https://notes.gladstomych.com/"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
