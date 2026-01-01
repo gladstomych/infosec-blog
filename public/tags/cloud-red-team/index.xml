@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Cloud-Red-Team on Gladstomych</title>
+    <link>//localhost:1313/tags/cloud-red-team/</link>
+    <description>Recent content in Cloud-Red-Team on Gladstomych</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 18 Dec 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="//localhost:1313/tags/cloud-red-team/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>TokenFlare: Serverless AiTM Phishing in Under 60 Seconds</title>
+      <link>//localhost:1313/blog/tokenflare-serverless-aitm-phishing/</link>
+      <pubDate>Thu, 18 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/blog/tokenflare-serverless-aitm-phishing/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;//localhost:1313/blog/tokenflare-serverless-aitm-phishing/banner.png&#34; alt=&#34;TokenFlare banner&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;At &lt;a href=&#34;https://beac0n.org/&#34;&gt;Beac0n 2025&lt;/a&gt;, I counted the talks. Five were about payloads, C2 frameworks, and endpoint evasion. One covered physical security. One was AI. And one (mine) was about cloud-native identity attacks.&lt;/p&gt;&#xA;&lt;p&gt;That ratio felt off. Over the past 18 months, our team has run entire red team engagements without ever touching a user&amp;rsquo;s endpoint. No C2, no beacon. Just creds, session cookies, and the Graph API. Threat actors have figured this out too-Midnight Blizzard didn&amp;rsquo;t need a binary payload to compromise Microsoft themselves.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Please Mind the CAP – Modern Conditional Access Policy Circumvention (Webinar Recording)</title>
+      <link>//localhost:1313/blog/cap-circumvention-webinar/</link>
+      <pubDate>Wed, 19 Feb 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/blog/cap-circumvention-webinar/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://labs.jumpsec.com/wp-content/uploads/sites/2/2025/02/please-mind-the-cap-replay-2025-01-30.mp4&#34;&gt;Watch the webinar recording&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;Original session: 31 Jan 2025&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;&lt;em&gt;Originally published on &lt;a href=&#34;https://labs.jumpsec.com/please-mind-the-cap-modern-conditional-access-policy-circumvention-and-what-it-means-for-your/&#34;&gt;JUMPSEC Labs&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>TokenSmith – Bypassing Intune Compliant Device Conditional Access</title>
+      <link>//localhost:1313/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/</link>
+      <pubDate>Fri, 20 Dec 2024 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;//localhost:1313/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/tokensmith_banner2_shrunken.png&#34; alt=&#34;tokensmith banner&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;Conditional Access Policies (CAPs) are the core of Entra ID&amp;rsquo;s perimeter defense for the vast majority of Enterprise Microsoft 365 (M365) and Azure environments. The core ideas of conditional access are:&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;Require specific auth strength in scenarios where you wish to grant access&lt;/li&gt;&#xA;&lt;li&gt;Block access in undesirable scenarios&lt;/li&gt;&#xA;&lt;li&gt;If a scenario are neither covered by a or b, then the minimal auth strength (password) would be sufficient&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;p&gt;A special condition for CAP requirements is that authentication can be required to come from an &amp;ldquo;Intune Compliant&amp;rdquo; device (also known as &amp;ldquo;company managed&amp;rdquo; to the user), otherwise the authentication would be unsuccessful. In our adversarial engagements, more hardened M365 environments often have this requirement for a large subset of cloud apps used by the company, making running post-exploitation Entra ID tools like GraphRunner, RoadRecon, Teamfiltration, etc. difficult. The conundrum is that you would need to be on a compliant device to get properly authenticated, however getting valid access &amp;amp; refresh token from the Endpoint device tends to be time consuming / loud, and it might not be practical to run something like GraphRunner directly on the beachhead device.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Why Sneak When You Can Walk Through the Front Door – A Love Letter to Password Spraying Against M365</title>
+      <link>//localhost:1313/blog/password-spraying-m365/</link>
+      <pubDate>Thu, 02 May 2024 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/blog/password-spraying-m365/</guid>
+      <description>&lt;p&gt;In 2023 through 2024, JUMPSEC&amp;rsquo;s red team gained access to Microsft 365 (M365) environments of sophisticated clients during adversarial engagements with an approach that breathes life into the decades-old technique of password spraying. With threat actors increasingly using similar approaches in the wild, being able to compromise the even likes of &lt;em&gt;&lt;a href=&#34;https://www.microsoft.com/en-us/security/blog/2024/01/25/midnight-blizzard-guidance-for-responders-on-nation-state-attack/&#34;&gt;Microsoft themselves&lt;/a&gt;&lt;/em&gt;, it is my opinion that red teams might benefit from incorporating some of these techniques into their initial access arsenal, or even in external perimeter security testing, to better emulate adversaries and challenge assumptions around intial access.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

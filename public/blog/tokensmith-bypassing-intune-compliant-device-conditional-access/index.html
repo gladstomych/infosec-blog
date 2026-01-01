@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  
+    <title>TokenSmith – Bypassing Intune Compliant Device Conditional Access :: Gladstomych</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+Conditional Access Policies (CAPs) are the core of Entra ID&rsquo;s perimeter defense for the vast majority of Enterprise Microsoft 365 (M365) and Azure environments. The core ideas of conditional access are:
+Require specific auth strength in scenarios where you wish to grant access Block access in undesirable scenarios If a scenario are neither covered by a or b, then the minimal auth strength (password) would be sufficient A special condition for CAP requirements is that authentication can be required to come from an &ldquo;Intune Compliant&rdquo; device (also known as &ldquo;company managed&rdquo; to the user), otherwise the authentication would be unsuccessful. In our adversarial engagements, more hardened M365 environments often have this requirement for a large subset of cloud apps used by the company, making running post-exploitation Entra ID tools like GraphRunner, RoadRecon, Teamfiltration, etc. difficult. The conundrum is that you would need to be on a compliant device to get properly authenticated, however getting valid access &amp; refresh token from the Endpoint device tends to be time consuming / loud, and it might not be practical to run something like GraphRunner directly on the beachhead device.
+" />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="//localhost:1313/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="//localhost:1313/favicon.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="TokenSmith – Bypassing Intune Compliant Device Conditional Access">
+<meta property="og:description" content="
+Conditional Access Policies (CAPs) are the core of Entra ID&rsquo;s perimeter defense for the vast majority of Enterprise Microsoft 365 (M365) and Azure environments. The core ideas of conditional access are:
+Require specific auth strength in scenarios where you wish to grant access Block access in undesirable scenarios If a scenario are neither covered by a or b, then the minimal auth strength (password) would be sufficient A special condition for CAP requirements is that authentication can be required to come from an &ldquo;Intune Compliant&rdquo; device (also known as &ldquo;company managed&rdquo; to the user), otherwise the authentication would be unsuccessful. In our adversarial engagements, more hardened M365 environments often have this requirement for a large subset of cloud apps used by the company, making running post-exploitation Entra ID tools like GraphRunner, RoadRecon, Teamfiltration, etc. difficult. The conundrum is that you would need to be on a compliant device to get properly authenticated, however getting valid access &amp; refresh token from the Endpoint device tends to be time consuming / loud, and it might not be practical to run something like GraphRunner directly on the beachhead device.
+" />
+<meta property="og:url" content="//localhost:1313/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/" />
+<meta property="og:site_name" content="Gladstomych" />
+
+  <meta property="og:image" content="//localhost:1313/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2024-12-20 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    ~/gladstomych
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/blog">Blog</a></li>
+        
+      
+        
+          <li><a href="/talks">Talks</a></li>
+        
+      
+        
+          <li><a href="/tools">Tools</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/blog" >Blog</a></li>
+        
+      
+        
+          <li><a href="/talks" >Talks</a></li>
+        
+      
+        
+          <li><a href="/tools" >Tools</a></li>
+        
+      
+        
+          <li><a href="/about" >About</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="//localhost:1313/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/">TokenSmith – Bypassing Intune Compliant Device Conditional Access</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2024-12-20</time></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="//localhost:1313/tags/azure/">azure</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/cloud-red-team/">cloud-red-team</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/initial-access/">initial-access</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/red-teaming/">red-teaming</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/burpsuite/">burpsuite</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/tokensmith_banner2_shrunken.png" alt="tokensmith banner"></p>
+<p>Conditional Access Policies (CAPs) are the core of Entra ID&rsquo;s perimeter defense for the vast majority of Enterprise Microsoft 365 (M365) and Azure environments. The core ideas of conditional access are:</p>
+<ol>
+<li>Require specific auth strength in scenarios where you wish to grant access</li>
+<li>Block access in undesirable scenarios</li>
+<li>If a scenario are neither covered by a or b, then the minimal auth strength (password) would be sufficient</li>
+</ol>
+<p>A special condition for CAP requirements is that authentication can be required to come from an &ldquo;Intune Compliant&rdquo; device (also known as &ldquo;company managed&rdquo; to the user), otherwise the authentication would be unsuccessful. In our adversarial engagements, more hardened M365 environments often have this requirement for a large subset of cloud apps used by the company, making running post-exploitation Entra ID tools like GraphRunner, RoadRecon, Teamfiltration, etc. difficult. The conundrum is that you would need to be on a compliant device to get properly authenticated, however getting valid access &amp; refresh token from the Endpoint device tends to be time consuming / loud, and it might not be practical to run something like GraphRunner directly on the beachhead device.</p>
+<p>Few weeks ago in BlackHat EU 2024, <a href="https://x.com/TEMP43487580">TEMP43487580</a>  (@TEMP43487580) gave a talk related to this topic. <a href="https://x.com/_dirkjan">Dirk-jan,</a>  (@_dirkjan) who also previously worked on the same attack path, disclosed the relevant client ID in a tweet and mentioned looking into the <em>Company Intune Portal</em> in the same thread. According to Dirk-jan himself, the &ldquo;cat is out of the bag&rdquo; for bypassing the CAP auth requirement for an Intune compliant device.</p>
+<pre tabindex="0"><code>&gt; Client_id: 9ba1a5c7-f17a-4de9-a1f1-6178c8d51223
+</code></pre><p>Folks in the adversarial simulation team in JUMPSEC got super excited about the possibility of getting a PoC working. I worked on this on a Friday night, helped by our Tom Ellson and a working bypass was completed based on this.</p>
+<p>Behind the scenes I&rsquo;ve been working on an Entra authentication util called TokenSmith for a while now. With the opportune timing of this new PoC, I decided to incorporate the bypass into the tool and release it in the current state. You can find TokenSmith on: <a href="https://github.com/JumpsecLabs/TokenSmith">https://github.com/JumpsecLabs/TokenSmith</a>.</p>
+<p>You can also skip the PoC sections of the post if you don&rsquo;t want to read about the discovery process.</p>
+<h2 id="credits">Credits<a href="#credits" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Credits for <a href="https://x.com/_dirkjan">Dirk-jan,</a>  from Outsider Security &amp; <a href="https://x.com/TEMP43487580">TEMP43487580</a>  from SecureWorks for initial disclosure of the vulnerable client ID which made the subsequent work possible.</p>
+<h2 id="walkthrough-of-discovery">Walkthrough of Discovery<a href="#walkthrough-of-discovery" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>For testing purposes, in my personal Entra ID tenant I&rsquo;ve set up a rule called <em>Derpy must log in from compliant device</em> which requires the user Derpy Fonder to authenticate from a compliant device which is also Entra ID joined device, use MFA from all locations and most importantly, for all resources / cloud apps.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune1.png" alt="intune1"></p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune2.png" alt="intune2"></p>
+<p>To prove that the CAP is working as intended, we tried to login to Office.com and Azure Portal, which both blocked us as we did not meet the compliance requirements. In fact there were nil compliant device in the tenant at all!</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune3.png" alt="intune3"></p>
+<p>As Dirk-jan wrote the very useful RoadTx and he kindly provided the client ID of the authentication flow, first thing I tried was using his tool:</p>
+<pre tabindex="0"><code>&gt; roadtx interactiveauth -c 9ba1a5c7-f17a-4de9-a1f1-6178c8d51223 -u [email protected]
+</code></pre><p>Unfortunately we would get an incorrect redirect URI error:</p>
+<pre tabindex="0"><code>&gt; AADSTS50011: The redirect URI &#39;https://login.microsoftonline.com/common/oauth2/nativeclient&#39; specified in the request does not match the redirect URIs configured for the application &#39;9ba1a5c7-f17a-4de9-a1f1-6178c8d51223&#39;
+</code></pre><p>You might wonder, what is the big deal with the direct URI? It is just another GET parameter isn&rsquo;t it? If you are not too familiar with the OAuth2 SSO Authorization code flow, you can see in the schematic below.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune4.png" alt="intune4"></p>
+<p>The pre-registered SaaS application or desktop or mobile client where the IdP (Entra ID here) redirects to, needs to be <strong>known</strong> to the IdP first, otherwise login.microsoft.com would arbitrarily redirect their users to malicious &amp; unknown third party domains with a legitimate authorization code with which access tokens can be redeemed. Consider the scenario where an attacker sends a user a malicious login link with the redirect_uri set to their web server, if the user logins in, would the user be redirected to the attacker&rsquo;s domain with the code parameter?</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune5.png" alt="intune5"></p>
+<p>Fortunately, this doesn&rsquo;t happen as Entra ID has the record of all registered first &amp; third party applications&rsquo; legit redirect URI and would refuse to give out the authorization code (useful for later) or proceed with the redirect. Each client app with its UUID would have paired with their paired redirects, sort of like a lock-and-key situation.</p>
+<p>Having read the MSDN manuals I do know that the nativeclient URI:</p>
+<pre tabindex="0"><code>&gt; https://login.microsoftonline.com/common/oauth2/nativeclient
+</code></pre><p>is for clients like Teams, Azure PowerShell and so on. Unfortunately this is not the redirect for this &lsquo;9ba1a5c7-f17a-4de9-a1f1-6178c8d51223&rsquo; client. Problem is, Microsoft does not publish the redirect URIs for first party applications. I knew we only have the first half of the puzzle and if / when the correct redirection is uncovered we would have a working PoC.</p>
+<p>Okay, on to the next hint then, Company Portal, what&rsquo;s that? A bit of Googling landed me on the Desktop app here: <a href="https://learn.microsoft.com/en-us/mem/intune/user-help/sign-in-to-the-company-portal">https://learn.microsoft.com/en-us/mem/intune/user-help/sign-in-to-the-company-portal</a>.</p>
+<p>And there is also a web app version at portal.manage.microsoft.com, however the client ID for the web app is not the 9ba1a5c7 one we want. I installed the Portal desktop app on a Win11 sandbox and fired it up to have a look. An Intune in-app browser prompting you to log in would pop up as soon as you start the app.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune6.png" alt="intune6"></p>
+<p>I thought, okay now I only need to proxy it to BurpSuite to see where this app talks to and it&rsquo;s all good then? I was so wrong. Even with Burp&rsquo;s cert installed into the system trusted root CA store, the app was absolutely not having it and kept throwing 404 errors. I thought then, okay let&rsquo;s try the builtin device code login option? The thinking was that I could route requests on a web browser through Burp during the device code flow and I could discover more there. (The guys in our team also suggested right click inspect on the in app browser which was a good shout but ultimately didn&rsquo;t work)</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune7.png" alt="intune7"></p>
+<p>Unfortunately Entra was again not happy and device code flow was blocked from the compliant device requirement. The good news however,  is that we knew we were on the right track as the authentication attempts were indeed from the <strong>9ba1a5c7</strong> client ID. At least this particular App is what we need to drill further into.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune8.png" alt="intune8"></p>
+<p>And better still, we already knew the bypass would work in theory at this point as the in-app browser login was deemed <strong>Successful</strong> in the sign in logs, whereas the device code attempt was a Failure. The only problem was that we did not have visibility in how the authentication worked under the hood of the successful login!</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune9.png" alt="intune9"></p>
+<h2 id="breakthrough">Breakthrough<a href="#breakthrough" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The struggle with proxying the Company Portal App was real and it kept 404&rsquo;ing no matter  what I tried. I even installed the Company Portal App on Linux to have a go, and the Linux version didn&rsquo;t even work properly. I got frustrated after a couple of hours and needed to change my thinking.</p>
+<p>I thought, I must not be the only person trying to get this app to talk through a proxy. There has to be many legitimate corporate environments with firewalls, SSL inspection and web proxy on all internal endpoints. I Googled &ldquo;Intune Company portal web proxy troubleshooting&rdquo; and viola, someone was showing error logs and discussion it online:  <a href="https://www.anoopcnair.com/fix-intune-company-portal-app-login-issues">https://www.anoopcnair.com/fix-intune-company-portal-app-login-issues</a></p>
+<p>They posted screenshots of Windows EventViewer logs and they were super verbose, which prompted me to have a look myself on my local machine – Event ID 1098 from source AAD, and there it was, the beauty of the full sign in URL in full view:</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune10.png" alt="intune10"></p>
+<p>There were a couple of encoding issues, for example %2f was turned into ^2f, presumably so that Windows would be able to process the log. I cleaned up the URL and the correct redirect URI was:</p>
+<pre tabindex="0"><code>&gt; ms-appx-web://Microsoft.AAD.BrokerPlugin/S-1-15-2-2666988183-1750391847-2906264630-3525785777-2857982319-3063633125-1907478113
+</code></pre><p>I pasted the full login.microsoft.com URL into a browser and the login worked and landed on – a neverending loading screen. Of course, Brave or Firefox wouldn&rsquo;t know how to deal with the <strong>ms-appx-web://</strong> URI scheme. Nevertheless, the authorization code was returned in the redirect.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune11.png" alt="intune11"></p>
+<p>I tried to redeem the tokens using the <strong>POST /common/oauth2/token</strong> endpoint and it worked like a charm. Think about it, full tokens from a random web browser where compliant device check should utterly block the login! I was ecstatic. Further modifications to the sign in URL were made to make it compatible with <strong>/common/oauth/v2.0/</strong> and also requested for refresh tokens, scoped to MS Graph instead of just Intune, talked to MS Graph, and got AD Graph access tokens from the initial Refresh token.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune12.png" alt="intune12"></p>
+<blockquote>
+<p>Tell you what, all those worked, and  I could not believe my eyes.</p>
+</blockquote>
+<h2 id="how-useful-are-the-redeemed-tokens">How useful are the redeemed tokens?<a href="#how-useful-are-the-redeemed-tokens" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Why though did all the token ops mentioned above work, and above all, why would an access token meant for Intune device enrollment be able to talk to MS Graph? On my suspicion I checked the known Foci client list on SecureWork&rsquo;s repo: <a href="https://github.com/secureworks/family-of-client-ids-research/blob/main/known-foci-clients.csv">https://github.com/secureworks/family-of-client-ids-research/blob/main/known-foci-clients.csv</a></p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune13.png" alt="intune13"></p>
+<p>It&rsquo;s right there, and the investigative part of this story was almost complete for me. For those not familiar with the term &lsquo;Foci clients&rsquo;, or &lsquo;family of client id&rsquo; clients, refresh tokens for every cloud app in the list, which includes Teams, Az PowerShell, Az cli, and so on, could request access tokens &amp; refresh tokens for each other (provided CAP is met). Access tokens could be requested for AD Graph and MS Graph, on top of what the App usually needs (for example, Teams would be Calendar.Read,  Contacts.Read, etc).</p>
+<p>I double checked the sign in attempt in Entra and it further bypassed the &ldquo;require hybrid Entra ID joined device&rdquo; requirement on top of the Intune compliant requirement.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune14.png" alt="intune14"></p>
+<p>Authentication was successful despite not meeting the CAP grant controls.</p>
+<h2 id="poc-login-flow-with-web-requests">PoC login flow with Web requests<a href="#poc-login-flow-with-web-requests" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>How would the reader recreate the same bypass at home? The requirements for the bypass is that the attacker is able to complete the authentication flow – with either:</p>
+<ul>
+<li>Password / MFA (depending on requirement), or</li>
+<li>Valid ESTSAUTH and ESTSAUTHPERSISTENT cookies (stolen from AiTM phishing perhaps)</li>
+</ul>
+<p>And that additional CAP conditions are met, for example geolocation, device platform (User Agent), trusted IP and so on.</p>
+<p>On a browser, hit the URL below and complete the authentication flow as usual (lines split for visibility):</p>
+<pre tabindex="0"><code>&gt; https://login.microsoftonline.com/common/oauth2/v2.0/authorize?\
+&gt;
+&gt; client_id=9ba1a5c7-f17a-4de9-a1f1-6178c8d51223&amp;\
+&gt; scope=openid+offline_access+https%3A%2F%2Fgraph.microsoft.com%2F.default&amp;\
+&gt; response_type=code&amp;\
+&gt; redirect_uri=ms-appx-web://Microsoft.AAD.BrokerPlugin/S-1-15-2-2666988183-1750391847-2906264630-3525785777-2857982319-3063633125-1907478113
+</code></pre><p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune15.png" alt="intune15"></p>
+<p>Once the MFA flow is completed (here for example for Derpy), the login screen would be stuck on a neverending loop with the 5 dots. The web browser is in fact trying its best to redirect you to ms-appx-web://… URL with the authorization code tagged on the end of the request.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune16.png" alt="intune16"></p>
+<p>Here you would want to fire up developer tools, hover over and copy that ms-appx-web:// link, and you would see the code= parameter in the end. If you don&rsquo;t want to go into developer tools to grab the URL, proxying the browser through BurpSuite would work too.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune17.png" alt="intune17"></p>
+<p>The access &amp; refresh tokens can then be redeemed from the OAuth2 /token API endpoint like this:</p>
+<p><strong>Request:</strong></p>
+<pre tabindex="0"><code>&gt; POST /common/oauth2/v2.0/token HTTP/1.1
+&gt; Host: login.microsoftonline.com
+&gt; User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0
+&gt; Content-Type: application/x-www-form-urlencoded
+&gt; Content-Length: xxx
+&gt;
+&gt; client_id=9ba1a5c7-f17a-4de9-a1f1-6178c8d51223&amp;redirect_uri=ms-appx-web://Microsoft.AAD.BrokerPlugin/S-1-15-2-2666988183-1750391847-2906264630-3525785777-2857982319-3063633125-1907478113&amp;grant_type=authorization_code&amp;scope=offline_access%20https%3A%2F%2Fgraph.microsoft.com%2F.default&amp;code=1.AUEBe...
+</code></pre><p><strong>Response:</strong></p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune18.png" alt="intune18"></p>
+<p>The token can then be used to access MS Graph (graph.microsoft.com), redeem new tokens for AD Graph (graph.windows.net) and be used to run your favorite Entra ID post exploitation tools.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune19.png" alt="intune19"></p>
+<h2 id="introducing-tokensmith">Introducing TokenSmith<a href="#introducing-tokensmith" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/tokensmith_smith_mild_green_tinge.png" alt="tokensmith"></p>
+<p>An easier way to achieve the same result would be to use our recently released internal tool called <a href="https://github.com/jumpseclabs/TokenSmith">TokenSmith</a>. It was developed to favour a browser based authentication workflow to work with Entra ID tokens because on engagements it is often not practical to install or run an untrusted binary / PowerShell or Python scripts on a beachhead device. You can see the caveats from the repo page and how to install it as well. Basically, either grab a binary or build it from source, that&rsquo;s it. To get tokens where you should be blocked by Intune Compliance requirement, run:</p>
+<pre tabindex="0"><code>&gt; ./tokensmith authcode --intune-bypass
+</code></pre><p>This would start the tool and it would display an appropriate URL to login with. For bypassing Intune, the client ID is fixed but you could request for resources other than MS Graph if you desire using the -r flag.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune20.png" alt="intune20"></p>
+<p>After logging in via a (recommended chromium-based)  browser you should see either one of the 2 pictures below.</p>
+<p><strong>You may see this:</strong></p>
+<p>If you see &ldquo;Continue&rdquo;, <strong>click &lsquo;Continue&rsquo; once</strong> and then press <strong>Ctrl+Shift+J</strong> to open the DevTools Console.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune21.png" alt="intune21"></p>
+<p><strong>Or you may see this instead:</strong></p>
+<p>If you see the 5 spinning / flying dots, go ahead and press <strong>Ctrl+Shift+J</strong> open the DevTools Console.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune22.png" alt="intune22"></p>
+<p>Right click and copy the ms-appx-web URL, paste it into TokenSmith as is, press RETURN and see the tokens coming in as the tool redeems the token for you in the background.</p>
+<p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/intune23.png" alt="intune23"></p>
+<h2 id="how-do-i-defend-against-this">How do I defend against this?<a href="#how-do-i-defend-against-this" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>The Intune Device Enrollment Service can be explicitly set on Entra ID conditional access as one of the cloud apps that must satisfy compliant device enrollment. However the dilemma is that you cannot enroll any new compliant device that way for your starters because a device must go through the <strong>Non-compliant &gt; Compliant</strong> journey first via this very client. Seeing how it works it is also highly unlikely Microsoft would change the underlying functionality any time soon.</p>
+<p>A more productive way would be to ensure that the Intune Company Portal Desktop app requires some form of MFA by conditional access by testing with running the Portal app on a VM and attempting to sign in, or by using TokenSmith. It is unfortunately not as simple as firing up the &lsquo;What if&rsquo; tool in Entra ID because the 9ba1a5c7-f17a-4de9-a1f1-6178c8d51223 client is not a searchable Enterprise App in Azure.</p>
+<p>You would have to go into the Sign In logs for a user (Entra ID admin center &gt; Users &gt; YourTestUser &gt; Sign in logs) and filter for Application &gt; 9ba1a5c7-f17a-4de9-a1f1-6178c8d51223  , and Click into the individual logins to see whether they were Successful and whether the MFA enforcing conditional access policy is applied.</p>
+<h2 id="limitations-and-future-development">Limitations and Future Development<a href="#limitations-and-future-development" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>As explained above you must be able to authenticate to the service to get tokens (fair enough), so requiring MFA to enroll devices is a reasonable defensive measure. However, what about AiTM phishing to bypass the MFA? It would be interesting to see how AiTM phishing can factor into this, for example, if the Evilginx server can AiTM a login to Intune instead of the commonly implemented login to Office.com. Another limitation I observed is that if non-compliant devices can only get tokens for the enrollment service, trying to redeem access tokens for other clients (for example Az PowerShell) with the Refresh tokens obtained would be blocked. Though I have yet to fully explore what is possible to do using this client alone, and getting access to both MS Graph and AD Graph is already very useful indeed!</p>
+<hr>
+<p><em>Originally published on <a href="https://labs.jumpsec.com/tokensmith-bypassing-intune-compliant-device-conditional-access/">JUMPSEC Labs</a></em></p>
+
+      </div></div>
+
+  
+    
+<div class="pagination">
+  <div class="pagination__title">
+    <span class="pagination__title-h"></span>
+    <hr />
+  </div>
+  <div class="pagination__buttons">
+    
+      <a href="//localhost:1313/blog/cap-circumvention-webinar/" class="button inline prev">
+        &lt; [<span class="button__text">Please Mind the CAP – Modern Conditional Access Policy Circumvention (Webinar Recording)</span>]
+      </a>
+    
+    
+      ::
+    
+    
+      <a href="//localhost:1313/blog/ssh-tunnelling-corporate-firewalls/" class="button inline next">
+         [<span class="button__text">SSH Tunnelling to Punch Through Corporate Firewalls – Updated Take on One of the Oldest LOLBINs</span>] &gt;
+      </a>
+    
+  </div>
+</div>
+
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2026 Powered by <a href="https://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

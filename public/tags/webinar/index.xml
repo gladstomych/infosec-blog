@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Webinar on Gladstomych</title>
+    <link>//localhost:1313/tags/webinar/</link>
+    <description>Recent content in Webinar on Gladstomych</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 19 Feb 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="//localhost:1313/tags/webinar/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Please Mind the CAP – Modern Conditional Access Policy Circumvention (Webinar Recording)</title>
+      <link>//localhost:1313/blog/cap-circumvention-webinar/</link>
+      <pubDate>Wed, 19 Feb 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/blog/cap-circumvention-webinar/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://labs.jumpsec.com/wp-content/uploads/sites/2/2025/02/please-mind-the-cap-replay-2025-01-30.mp4&#34;&gt;Watch the webinar recording&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;Original session: 31 Jan 2025&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;&lt;em&gt;Originally published on &lt;a href=&#34;https://labs.jumpsec.com/please-mind-the-cap-modern-conditional-access-policy-circumvention-and-what-it-means-for-your/&#34;&gt;JUMPSEC Labs&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

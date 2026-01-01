@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Burpsuite on Gladstomych</title>
+    <link>//localhost:1313/categories/burpsuite/</link>
+    <description>Recent content in Burpsuite on Gladstomych</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 13 Jun 2024 18:16:33 +0000</lastBuildDate>
+    <atom:link href="//localhost:1313/categories/burpsuite/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>What’s in a Name? Writing custom DNS tunnelling protocol, exploiting unexpected AWS Lambda misconfiguration – in a web app Pen test (Part 2)</title>
+      <link>//localhost:1313/blog/2024-06-13-whats-in-a-name-writing-custom-dns-tunnelling-protocol-exploiting-unexpected-aws-lambda/</link>
+      <pubDate>Thu, 13 Jun 2024 18:16:33 +0000</pubDate>
+      <guid>//localhost:1313/blog/2024-06-13-whats-in-a-name-writing-custom-dns-tunnelling-protocol-exploiting-unexpected-aws-lambda/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;//localhost:1313/assets/img/posts/whats-in-a-name-writing-custom-dns-tunnelling-protocol-exploiting-unexpected-aws-lambda-misconfiguration-in-a-web-app-pen-test-part-2/unnamed.gif&#34; alt=&#34;unnamed&#34; title=&#34;unnamed&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;In &lt;a href=&#34;https://labs.jumpsec.com/whats-in-a-name-writing-custom-dns-tunnelling-protocol-on-the-fly-exploiting-unexpected-aws-lambda-misconfiguration-all-in-a-web-app-pen-test-part-1/&#34;&gt;Part 1&lt;/a&gt; of the series we looked at how an AWS Lambda-powered feature was exploited in a web app penetration test initially leading to RCE and further on with out-of-band data exfiltration via DNS. Though the exact mechanism of achieving remote-code execution with Python was not discussed, we went in depth in how to return data as a result of the code being executed. Initially, with ascii-to-integer encoding I was able to find the username of the runtime user – sbx_userNNN.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

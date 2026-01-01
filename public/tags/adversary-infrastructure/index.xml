@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Adversary-Infrastructure on Gladstomych</title>
+    <link>//localhost:1313/tags/adversary-infrastructure/</link>
+    <description>Recent content in Adversary-Infrastructure on Gladstomych</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 13 Aug 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="//localhost:1313/tags/adversary-infrastructure/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SSH Tunnelling to Punch Through Corporate Firewalls – Updated Take on One of the Oldest LOLBINs</title>
+      <link>//localhost:1313/blog/ssh-tunnelling-corporate-firewalls/</link>
+      <pubDate>Tue, 13 Aug 2024 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/blog/ssh-tunnelling-corporate-firewalls/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;//localhost:1313/blog/ssh-tunnelling-corporate-firewalls/ezgif-7-4b7e7cf968.gif&#34; alt=&#34;SSH tunnelling animation&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;In my formative days of learning network hacking, SSH tunnelling was amongst the first tunnelling techniques that I learnt. I still remember trying to repeatedly decode my notes and diagrams on the rather cumbersome syntax of single port forwarding with the -L and -R flags, which at the time was taught as &amp;ldquo;the way to do it&amp;rdquo;. If your foothold is (luckily) a Linux server, then you&amp;rsquo;re blessed with the -D flag to spin up a SOCKS proxy on the foothold itself to access the network via proxychains.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

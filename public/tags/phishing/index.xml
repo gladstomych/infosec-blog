@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Phishing on Gladstomych</title>
+    <link>//localhost:1313/tags/phishing/</link>
+    <description>Recent content in Phishing on Gladstomych</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 18 Dec 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="//localhost:1313/tags/phishing/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>TokenFlare: Serverless AiTM Phishing in Under 60 Seconds</title>
+      <link>//localhost:1313/blog/tokenflare-serverless-aitm-phishing/</link>
+      <pubDate>Thu, 18 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/blog/tokenflare-serverless-aitm-phishing/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;//localhost:1313/blog/tokenflare-serverless-aitm-phishing/banner.png&#34; alt=&#34;TokenFlare banner&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;At &lt;a href=&#34;https://beac0n.org/&#34;&gt;Beac0n 2025&lt;/a&gt;, I counted the talks. Five were about payloads, C2 frameworks, and endpoint evasion. One covered physical security. One was AI. And one (mine) was about cloud-native identity attacks.&lt;/p&gt;&#xA;&lt;p&gt;That ratio felt off. Over the past 18 months, our team has run entire red team engagements without ever touching a user&amp;rsquo;s endpoint. No C2, no beacon. Just creds, session cookies, and the Graph API. Threat actors have figured this out too-Midnight Blizzard didn&amp;rsquo;t need a binary payload to compromise Microsoft themselves.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

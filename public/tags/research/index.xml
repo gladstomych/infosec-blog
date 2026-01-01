@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Research on Gladstomych</title>
+    <link>//localhost:1313/tags/research/</link>
+    <description>Recent content in Research on Gladstomych</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 19 Feb 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="//localhost:1313/tags/research/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Please Mind the CAP – Modern Conditional Access Policy Circumvention (Webinar Recording)</title>
+      <link>//localhost:1313/blog/cap-circumvention-webinar/</link>
+      <pubDate>Wed, 19 Feb 2025 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/blog/cap-circumvention-webinar/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://labs.jumpsec.com/wp-content/uploads/sites/2/2025/02/please-mind-the-cap-replay-2025-01-30.mp4&#34;&gt;Watch the webinar recording&lt;/a&gt;&lt;/p&gt;&#xA;&lt;p&gt;Original session: 31 Jan 2025&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;&lt;em&gt;Originally published on &lt;a href=&#34;https://labs.jumpsec.com/please-mind-the-cap-modern-conditional-access-policy-circumvention-and-what-it-means-for-your/&#34;&gt;JUMPSEC Labs&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>What&#39;s in a Name? DNS Tunnelling &amp; AWS Lambda Exploitation (Part 2)</title>
+      <link>//localhost:1313/blog/dns-tunnelling-aws-lambda-part-2/</link>
+      <pubDate>Thu, 13 Jun 2024 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/blog/dns-tunnelling-aws-lambda-part-2/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;//localhost:1313/blog/dns-tunnelling-aws-lambda-part-2/unnamed.gif&#34; alt=&#34;unnamed&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;In &lt;a href=&#34;//localhost:1313/blog/dns-tunnelling-aws-lambda/&#34;&gt;Part 1&lt;/a&gt; of the series we looked at how an AWS Lambda-powered feature was exploited in a web app penetration test initially leading to RCE and further on with out-of-band data exfiltration via DNS. Though the exact mechanism of achieving remote-code execution with Python was not discussed, we went in depth in how to return data as a result of the code being executed. Initially, with ascii-to-integer encoding I was able to find the username of the runtime user – sbx_userNNN.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>What&#39;s in a Name? Writing Custom DNS Tunnelling Protocol, Exploiting AWS Lambda Misconfiguration (Part 1)</title>
+      <link>//localhost:1313/blog/dns-tunnelling-aws-lambda/</link>
+      <pubDate>Thu, 06 Jun 2024 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/blog/dns-tunnelling-aws-lambda/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;//localhost:1313/blog/dns-tunnelling-aws-lambda/half-life-hecu.gif&#34; alt=&#34;half life hecu&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;This is a war story of an AWS web application test where remote code execution was first obtained on the client&amp;rsquo;s application. Then I needed to write my own DNS tunnelling &amp;lsquo;protocol&amp;rsquo; to get the data out. Following a number of twists and turns I impersonated the application and attempted to laterally move within the AWS tenant.&lt;/p&gt;&#xA;&lt;p&gt;Before storytelling though, let&amp;rsquo;s start with a public service announcement:&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

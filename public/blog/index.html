@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  
+    <title>Blog :: Gladstomych</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Writeups, research, and thoughts on offensive security" />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="//localhost:1313/blog/" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/buttons.min.86f6b4c106b6c6eb690ae5203d36b442c1f66f718ff4e8164fa86cf6c61ad641.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/code.min.d529ea4b2fb8d34328d7d31afc5466d5f7bc2f0bc9abdd98b69385335d7baee4.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/fonts.min.5bb7ed13e1d00d8ff39ea84af26737007eb5051b157b86fc24487c94f3dc8bbe.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/footer.min.eb8dfc2c6a7eafa36cd3ba92d63e69e849e2200e0002a228d137f236b09ecd75.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/gist.min.a751e8b0abe1ba8bc53ced52a38b19d8950fe78ca29454ea8c2595cf26aad5c0.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/header.min.75c7eb0e2872d95ff48109c6647d0223a38db52e2561dd87966eb5fc7c6bdac6.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/main.min.36833afd348409fc6c3d09d0897c5833d9d5bf1ff31f5e60ea3ee42ce2b1268c.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/menu.min.3c17467ebeb3d38663dce68f71f519901124fa5cbb4519b2fb0667a21e9aca39.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/pagination.min.bbb986dbce00a5ce5aca0504b7925fc1c581992a4bf57f163e5d69cc1db7d836.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/post.min.e6dddd258e64c83e05cec0cd49c05216742d42fc8ecbfbe6b67083412b609bd3.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/syntax.min.a0773cce9310cb6d8ed23e50f005448facf29a53001b57e038828daa466b25c0.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/terminal.min.e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.css">
+
+  
+  <link rel="stylesheet" href="//localhost:1313/css/terms.min.b81791663c3790e738e571cdbf802312390d30e4b1d8dc9d814a5b5454d0ac11.css">
+
+
+
+
+
+
+
+<link rel="shortcut icon" href="//localhost:1313/favicon.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Blog">
+<meta property="og:description" content="Writeups, research, and thoughts on offensive security" />
+<meta property="og:url" content="//localhost:1313/blog/" />
+<meta property="og:site_name" content="Gladstomych" />
+
+  <meta property="og:image" content="//localhost:1313/og-image.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+
+
+
+  <link href="/blog/index.xml" rel="alternate" type="application/rss+xml" title="Gladstomych" />
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+
+<div class="container center">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    ~/gladstomych
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/blog">Blog</a></li>
+        
+      
+        
+          <li><a href="/talks">Talks</a></li>
+        
+      
+        
+          <li><a href="/tools">Tools</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/blog" >Blog</a></li>
+        
+      
+        
+          <li><a href="/talks" >Talks</a></li>
+        
+      
+        
+          <li><a href="/tools" >Tools</a></li>
+        
+      
+        
+          <li><a href="/about" >About</a></li>
+        
+      
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+  
+  <div class="posts">
+    
+      <article class="post on-list">
+        <h2 class="post-title">
+          <a href="//localhost:1313/blog/tokenflare-serverless-aitm-phishing/">TokenFlare: Serverless AiTM Phishing in Under 60 Seconds</a>
+        </h2>
+        <div class="post-meta"><time class="post-date">2025-12-18</time></div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="//localhost:1313/tags/azure/">azure</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/cloud-red-team/">cloud-red-team</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/initial-access/">initial-access</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/phishing/">phishing</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/tooling/">tooling</a>&nbsp;
+            
+          </span>
+        
+
+        
+
+
+        <div class="post-content">
+          
+            <p><img src="/blog/tokenflare-serverless-aitm-phishing/banner.png" alt="TokenFlare banner"></p>
+<p>At <a href="https://beac0n.org/">Beac0n 2025</a>, I counted the talks. Five were about payloads, C2 frameworks, and endpoint evasion. One covered physical security. One was AI. And one (mine) was about cloud-native identity attacks.</p>
+<p>That ratio felt off. Over the past 18 months, our team has run entire red team engagements without ever touching a user&rsquo;s endpoint. No C2, no beacon. Just creds, session cookies, and the Graph API. Threat actors have figured this out too-Midnight Blizzard didn&rsquo;t need a binary payload to compromise Microsoft themselves.</p>
+          
+        </div>
+
+        
+           <div>
+            <a class="read-more button inline" href="/blog/tokenflare-serverless-aitm-phishing/">[Read more]</a>
+          </div>
+        
+      </article>
+    
+      <article class="post on-list">
+        <h2 class="post-title">
+          <a href="//localhost:1313/blog/cap-circumvention-webinar/">Please Mind the CAP – Modern Conditional Access Policy Circumvention (Webinar Recording)</a>
+        </h2>
+        <div class="post-meta"><time class="post-date">2025-02-19</time></div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="//localhost:1313/tags/azure/">azure</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/cloud-red-team/">cloud-red-team</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/research/">research</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/webinar/">webinar</a>&nbsp;
+            
+          </span>
+        
+
+        
+
+
+        <div class="post-content">
+          
+            <p><a href="https://labs.jumpsec.com/wp-content/uploads/sites/2/2025/02/please-mind-the-cap-replay-2025-01-30.mp4">Watch the webinar recording</a></p>
+<p>Original session: 31 Jan 2025</p>
+<hr>
+<p><em>Originally published on <a href="https://labs.jumpsec.com/please-mind-the-cap-modern-conditional-access-policy-circumvention-and-what-it-means-for-your/">JUMPSEC Labs</a></em></p>
+          
+        </div>
+
+        
+           <div>
+            <a class="read-more button inline" href="/blog/cap-circumvention-webinar/">[Read more]</a>
+          </div>
+        
+      </article>
+    
+      <article class="post on-list">
+        <h2 class="post-title">
+          <a href="//localhost:1313/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/">TokenSmith – Bypassing Intune Compliant Device Conditional Access</a>
+        </h2>
+        <div class="post-meta"><time class="post-date">2024-12-20</time></div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="//localhost:1313/tags/azure/">azure</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/cloud-red-team/">cloud-red-team</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/initial-access/">initial-access</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/red-teaming/">red-teaming</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/burpsuite/">burpsuite</a>&nbsp;
+            
+          </span>
+        
+
+        
+
+
+        <div class="post-content">
+          
+            <p><img src="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/tokensmith_banner2_shrunken.png" alt="tokensmith banner"></p>
+<p>Conditional Access Policies (CAPs) are the core of Entra ID&rsquo;s perimeter defense for the vast majority of Enterprise Microsoft 365 (M365) and Azure environments. The core ideas of conditional access are:</p>
+<ol>
+<li>Require specific auth strength in scenarios where you wish to grant access</li>
+<li>Block access in undesirable scenarios</li>
+<li>If a scenario are neither covered by a or b, then the minimal auth strength (password) would be sufficient</li>
+</ol>
+<p>A special condition for CAP requirements is that authentication can be required to come from an &ldquo;Intune Compliant&rdquo; device (also known as &ldquo;company managed&rdquo; to the user), otherwise the authentication would be unsuccessful. In our adversarial engagements, more hardened M365 environments often have this requirement for a large subset of cloud apps used by the company, making running post-exploitation Entra ID tools like GraphRunner, RoadRecon, Teamfiltration, etc. difficult. The conundrum is that you would need to be on a compliant device to get properly authenticated, however getting valid access &amp; refresh token from the Endpoint device tends to be time consuming / loud, and it might not be practical to run something like GraphRunner directly on the beachhead device.</p>
+          
+        </div>
+
+        
+           <div>
+            <a class="read-more button inline" href="/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/">[Read more]</a>
+          </div>
+        
+      </article>
+    
+      <article class="post on-list">
+        <h2 class="post-title">
+          <a href="//localhost:1313/blog/ssh-tunnelling-corporate-firewalls/">SSH Tunnelling to Punch Through Corporate Firewalls – Updated Take on One of the Oldest LOLBINs</a>
+        </h2>
+        <div class="post-meta"><time class="post-date">2024-08-13</time></div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="//localhost:1313/tags/adversary-infrastructure/">adversary-infrastructure</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/initial-access/">initial-access</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/red-teaming/">red-teaming</a>&nbsp;
+            
+          </span>
+        
+
+        
+
+
+        <div class="post-content">
+          
+            <p><img src="/blog/ssh-tunnelling-corporate-firewalls/ezgif-7-4b7e7cf968.gif" alt="SSH tunnelling animation"></p>
+<p>In my formative days of learning network hacking, SSH tunnelling was amongst the first tunnelling techniques that I learnt. I still remember trying to repeatedly decode my notes and diagrams on the rather cumbersome syntax of single port forwarding with the -L and -R flags, which at the time was taught as &ldquo;the way to do it&rdquo;. If your foothold is (luckily) a Linux server, then you&rsquo;re blessed with the -D flag to spin up a SOCKS proxy on the foothold itself to access the network via proxychains.</p>
+          
+        </div>
+
+        
+           <div>
+            <a class="read-more button inline" href="/blog/ssh-tunnelling-corporate-firewalls/">[Read more]</a>
+          </div>
+        
+      </article>
+    
+      <article class="post on-list">
+        <h2 class="post-title">
+          <a href="//localhost:1313/blog/dns-tunnelling-aws-lambda-part-2/">What&rsquo;s in a Name? DNS Tunnelling &amp; AWS Lambda Exploitation (Part 2)</a>
+        </h2>
+        <div class="post-meta"><time class="post-date">2024-06-13</time></div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="//localhost:1313/tags/burpsuite/">burpsuite</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/exploitation/">exploitation</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/network/">network</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/research/">research</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/aws/">aws</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/rce/">rce</a>&nbsp;
+            
+          </span>
+        
+
+        
+
+
+        <div class="post-content">
+          
+            <p><img src="/blog/dns-tunnelling-aws-lambda-part-2/unnamed.gif" alt="unnamed"></p>
+<p>In <a href="/blog/dns-tunnelling-aws-lambda/">Part 1</a> of the series we looked at how an AWS Lambda-powered feature was exploited in a web app penetration test initially leading to RCE and further on with out-of-band data exfiltration via DNS. Though the exact mechanism of achieving remote-code execution with Python was not discussed, we went in depth in how to return data as a result of the code being executed. Initially, with ascii-to-integer encoding I was able to find the username of the runtime user – sbx_userNNN.</p>
+          
+        </div>
+
+        
+           <div>
+            <a class="read-more button inline" href="/blog/dns-tunnelling-aws-lambda-part-2/">[Read more]</a>
+          </div>
+        
+      </article>
+    
+      <article class="post on-list">
+        <h2 class="post-title">
+          <a href="//localhost:1313/blog/dns-tunnelling-aws-lambda/">What&rsquo;s in a Name? Writing Custom DNS Tunnelling Protocol, Exploiting AWS Lambda Misconfiguration (Part 1)</a>
+        </h2>
+        <div class="post-meta"><time class="post-date">2024-06-06</time></div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="//localhost:1313/tags/burpsuite/">burpsuite</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/exploitation/">exploitation</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/network/">network</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/research/">research</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/aws/">aws</a>&nbsp;
+            
+          </span>
+        
+
+        
+
+
+        <div class="post-content">
+          
+            <p><img src="/blog/dns-tunnelling-aws-lambda/half-life-hecu.gif" alt="half life hecu"></p>
+<p>This is a war story of an AWS web application test where remote code execution was first obtained on the client&rsquo;s application. Then I needed to write my own DNS tunnelling &lsquo;protocol&rsquo; to get the data out. Following a number of twists and turns I impersonated the application and attempted to laterally move within the AWS tenant.</p>
+<p>Before storytelling though, let&rsquo;s start with a public service announcement:</p>
+          
+        </div>
+
+        
+           <div>
+            <a class="read-more button inline" href="/blog/dns-tunnelling-aws-lambda/">[Read more]</a>
+          </div>
+        
+      </article>
+    
+      <article class="post on-list">
+        <h2 class="post-title">
+          <a href="//localhost:1313/blog/password-spraying-m365/">Why Sneak When You Can Walk Through the Front Door – A Love Letter to Password Spraying Against M365</a>
+        </h2>
+        <div class="post-meta"><time class="post-date">2024-05-02</time></div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="//localhost:1313/tags/azure/">azure</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/cloud-red-team/">cloud-red-team</a>&nbsp;
+            
+            #<a href="//localhost:1313/tags/initial-access/">initial-access</a>&nbsp;
+            
+          </span>
+        
+
+        
+
+
+        <div class="post-content">
+          
+            <p>In 2023 through 2024, JUMPSEC&rsquo;s red team gained access to Microsft 365 (M365) environments of sophisticated clients during adversarial engagements with an approach that breathes life into the decades-old technique of password spraying. With threat actors increasingly using similar approaches in the wild, being able to compromise the even likes of <em><a href="https://www.microsoft.com/en-us/security/blog/2024/01/25/midnight-blizzard-guidance-for-responders-on-nation-state-attack/">Microsoft themselves</a></em>, it is my opinion that red teams might benefit from incorporating some of these techniques into their initial access arsenal, or even in external perimeter security testing, to better emulate adversaries and challenge assumptions around intial access.</p>
+          
+        </div>
+
+        
+           <div>
+            <a class="read-more button inline" href="/blog/password-spraying-m365/">[Read more]</a>
+          </div>
+        
+      </article>
+    
+
+    <div class="pagination">
+  <div class="pagination__buttons">
+    
+    
+    
+  </div>
+</div>
+
+  </div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2026 Powered by <a href="https://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

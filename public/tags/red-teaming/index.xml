@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Red-Teaming on Gladstomych</title>
+    <link>//localhost:1313/tags/red-teaming/</link>
+    <description>Recent content in Red-Teaming on Gladstomych</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 20 Dec 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="//localhost:1313/tags/red-teaming/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>TokenSmith – Bypassing Intune Compliant Device Conditional Access</title>
+      <link>//localhost:1313/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/</link>
+      <pubDate>Fri, 20 Dec 2024 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;//localhost:1313/blog/tokensmith-bypassing-intune-compliant-device-conditional-access/tokensmith_banner2_shrunken.png&#34; alt=&#34;tokensmith banner&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;Conditional Access Policies (CAPs) are the core of Entra ID&amp;rsquo;s perimeter defense for the vast majority of Enterprise Microsoft 365 (M365) and Azure environments. The core ideas of conditional access are:&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;Require specific auth strength in scenarios where you wish to grant access&lt;/li&gt;&#xA;&lt;li&gt;Block access in undesirable scenarios&lt;/li&gt;&#xA;&lt;li&gt;If a scenario are neither covered by a or b, then the minimal auth strength (password) would be sufficient&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;p&gt;A special condition for CAP requirements is that authentication can be required to come from an &amp;ldquo;Intune Compliant&amp;rdquo; device (also known as &amp;ldquo;company managed&amp;rdquo; to the user), otherwise the authentication would be unsuccessful. In our adversarial engagements, more hardened M365 environments often have this requirement for a large subset of cloud apps used by the company, making running post-exploitation Entra ID tools like GraphRunner, RoadRecon, Teamfiltration, etc. difficult. The conundrum is that you would need to be on a compliant device to get properly authenticated, however getting valid access &amp;amp; refresh token from the Endpoint device tends to be time consuming / loud, and it might not be practical to run something like GraphRunner directly on the beachhead device.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>SSH Tunnelling to Punch Through Corporate Firewalls – Updated Take on One of the Oldest LOLBINs</title>
+      <link>//localhost:1313/blog/ssh-tunnelling-corporate-firewalls/</link>
+      <pubDate>Tue, 13 Aug 2024 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/blog/ssh-tunnelling-corporate-firewalls/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;//localhost:1313/blog/ssh-tunnelling-corporate-firewalls/ezgif-7-4b7e7cf968.gif&#34; alt=&#34;SSH tunnelling animation&#34;&gt;&lt;/p&gt;&#xA;&lt;p&gt;In my formative days of learning network hacking, SSH tunnelling was amongst the first tunnelling techniques that I learnt. I still remember trying to repeatedly decode my notes and diagrams on the rather cumbersome syntax of single port forwarding with the -L and -R flags, which at the time was taught as &amp;ldquo;the way to do it&amp;rdquo;. If your foothold is (luckily) a Linux server, then you&amp;rsquo;re blessed with the -D flag to spin up a SOCKS proxy on the foothold itself to access the network via proxychains.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
